@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AppUser, UserStatus } from "@/types/user";
-import { ensureSeed, listUsers, setUserStatus, stats, setUserPlan, deleteUser } from "@/services/adminUsers";
+import { listUsers, setUserStatus, stats, setUserPlan, deleteUser } from "@/services/adminUsers";
 import { getHistoryAnalytics, HistoryAnalytics } from "@/services/history";
 import { getSystemSettings, updateSystemSettings, clearAllCaches, resetAllAnalytics, exportAllData, importData, SystemSettings } from "@/services/adminSystem";
 import { getPendingStores, approveStore, rejectStore, getModerationStats, ModeratedStore } from "@/services/adminModeration";
@@ -38,7 +38,6 @@ export default function Admin() {
     setLoading(true);
     setError(null);
     try {
-      await ensureSeed();
       const [u, m, a, settings, pending, modStats] = await Promise.all([
         listUsers(),
         stats(),

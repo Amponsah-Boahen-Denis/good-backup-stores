@@ -29,7 +29,7 @@ export default function ResultsList({ items, layout }: Props) {
               />
             )}
             <h3 className="font-medium text-base">{p.name}</h3>
-            <p className="text-xs text-black/70 dark:text-white/70 mt-1">{p.address}</p>
+            <p className="text-xs text-black/70 dark:text-white/70 mt-1">{p.address || "Address not available"}</p>
             <div className="mt-3 text-xs text-black/60 dark:text-white/60 space-y-1">
               {p.phone && <p>📞 {p.phone}</p>}
               {p.email && <p>✉️ {p.email}</p>}
@@ -63,7 +63,7 @@ export default function ResultsList({ items, layout }: Props) {
             )}
             <div className="flex-1">
               <h3 className="font-medium text-base">{p.name}</h3>
-              <p className="text-xs text-black/70 dark:text-white/70 mt-1">{p.address}</p>
+              <p className="text-xs text-black/70 dark:text-white/70 mt-1">{p.address || "Address not available"}</p>
               <div className="mt-2 text-xs text-black/60 dark:text-white/60 space-y-1">
                 {p.phone && <p>📞 {p.phone}</p>}
                 {p.email && <p>✉️ {p.email}</p>}

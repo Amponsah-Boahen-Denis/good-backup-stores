@@ -6,15 +6,17 @@ import StoreList from "@/components/StoreList";
 import LogoUpload from "@/components/LogoUpload";
 import ProfileForm from "@/components/ProfileForm";
 import BusinessAnalytics from "@/components/BusinessAnalytics";
+import StoreSearchWidget from "@/components/StoreSearchWidget";
 import { deleteStore, listStores, saveStore, StoreSubmission } from "@/services/userStores";
 import { canAddStore, recordStoreAdded } from "@/services/userPlans";
 import PlanStatus from "@/components/PlanStatus";
 import PlanLimitAlert from "@/components/PlanLimitAlert";
 import { usePreferences } from "@/hooks/usePreferences";
+import { updateUserPreferences } from "@/services/preferences";
 import Button from "@/components/Button";
 
 export default function Profile() {
-  const { prefs, updatePreferences } = usePreferences();
+  const { prefs } = usePreferences();
   const user = { name: prefs.name || "User", email: prefs.email || "user@example.com" };
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -53,13 +55,13 @@ export default function Profile() {
 
   const handleLogoUpload = async (url: string) => {
     setProfileLogo(url);
-    await updatePreferences({ logo: url });
+    await updateUserPreferences({ logo: url });
   };
 
   const handleProfileSave = async (data: Record<string, string>) => {
     setIsSavingProfile(true);
     try {
-      await updatePreferences(data);
+      await updateUserPreferences(data);
       setIsEditingProfile(false);
     } finally {
       setIsSavingProfile(false);
@@ -116,6 +118,11 @@ export default function Profile() {
         <BusinessAnalytics />
       </section>
 
+      {/* Store Search Widget */}
+      <section>
+        <StoreSearchWidget />
+      </section>
+
       <section className="space-y-4">
         <h2 className="text-lg font-medium">Your stores</h2>
         <StoreList items={stores} onEdit={handleEdit} onDelete={handleDelete} />
@@ -127,6 +134,7 @@ export default function Profile() {
           <PlanLimitAlert
             type="store"
             message={storeLimitError}
+            currentPlan="Starter"
             suggestedPlan="Pro"
             onDismiss={() => setStoreLimitError(null)}
           />

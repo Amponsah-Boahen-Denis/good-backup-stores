@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getBusinessAnalytics, BusinessAnalytics } from "@/services/businessAnalytics";
+import { getBusinessAnalytics } from "@/services/businessAnalytics";
+import type { BusinessAnalytics } from "@/services/businessAnalytics";
 
 export default function BusinessAnalytics() {
   const [analytics, setAnalytics] = useState<BusinessAnalytics | null>(null);

@@ -1,3 +1,5 @@
+"use client";
+
 import SignupFeature from "@/features/Auth/Signup";
 
 export default function SignupPage() {

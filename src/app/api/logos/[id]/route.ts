@@ -3,10 +3,11 @@ import { getLogoById } from "@/services/logos";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const logoId = params.id;
+    const { id } = await params;
+    const logoId = id;
 
     if (!logoId) {
       return NextResponse.json({ error: "Logo ID required" }, { status: 400 });

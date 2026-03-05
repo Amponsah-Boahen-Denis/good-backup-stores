@@ -6,7 +6,7 @@ import LayoutToggle from "@/components/LayoutToggle";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ErrorAlert from "@/components/ErrorAlert";
 import { detectBrowserLocation } from "@/services/geolocation";
-import { findNearbyStores, toSearchResult, SearchResult } from "@/services/openstreet";
+import { findNearbyStores, toSearchResult, SearchResult, Place } from "@/services/openstreet";
 import { makeCacheKey, getSnapshot, getStoresByIds, upsertStores, upsertSnapshot } from "@/services/searchCache";
 import { usePreferences } from "@/hooks/usePreferences";
 import { trackStoreAppearance, incrementSearchCount } from "@/services/businessAnalytics";

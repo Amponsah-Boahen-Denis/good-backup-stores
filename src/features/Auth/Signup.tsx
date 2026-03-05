@@ -14,34 +14,45 @@ export default function Signup() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
 
+  const passwordRules = (pwd: string) => {
+    const reqs: string[] = [];
+    if (pwd.length < 8) reqs.push("at least 8 characters");
+    if (!/[a-zA-Z]/.test(pwd)) reqs.push("a letter");
+    if (!/\d/.test(pwd)) reqs.push("a number");
+    return reqs;
+  };
+
+  const validateField = (name: string, value: string): string | null => {
+    switch (name) {
+      case "name":
+        if (!value.trim()) return "Full name is required";
+        if (value.trim().length < 2) return "Name must be at least 2 characters";
+        return null;
+      case "email":
+        if (!value) return "Email is required";
+        if (!/\S+@\S+\.\S+/.test(value)) return "Please enter a valid email";
+        return null;
+      case "password":
+        if (!value) return "Password is required";
+        const pwErrs = passwordRules(value);
+        if (pwErrs.length > 0) return `Password must contain ${pwErrs.join(", ")}`;
+        return null;
+      case "confirmPassword":
+        if (!value) return "Please confirm your password";
+        if (value !== formData.password) return "Passwords do not match";
+        return null;
+      default:
+        return null;
+    }
+  };
+
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Full name is required";
-    } else if (formData.name.trim().length < 2) {
-      newErrors.name = "Name must be at least 2 characters";
-    }
-
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = "Password must contain uppercase, lowercase, and number";
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
+    ["name", "email", "password", "confirmPassword"].forEach((field) => {
+      const err = validateField(field, (formData as any)[field]);
+      if (err) newErrors[field] = err;
+    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -75,11 +86,10 @@ export default function Signup() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
-    }
+
+    // validate field as user types
+    const fieldError = validateField(name, value);
+    setErrors(prev => ({ ...prev, [name]: fieldError || "" }));
   };
 
   return (
@@ -91,6 +101,17 @@ export default function Signup() {
             Join My-Best and start finding stores near you
           </p>
         </div>
+
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={() => alert("Google sign-up placeholder")}
+            className="w-full max-w-xs flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700 text-sm"
+          >
+            <span>Continue with Google</span>
+          </button>
+        </div>
+        <div className="text-center text-sm text-gray-500 dark:text-gray-400">or</div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {errors.general && (
@@ -176,6 +197,11 @@ export default function Signup() {
             {errors.password && (
               <p id="password-error" className="text-sm text-red-600 dark:text-red-400">
                 {errors.password}
+              </p>
+            )}
+            {formData.password && passwordRules(formData.password).length > 0 && (
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                Must include {passwordRules(formData.password).join(", ")}.
               </p>
             )}
           </div>

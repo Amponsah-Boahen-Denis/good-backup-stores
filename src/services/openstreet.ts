@@ -51,13 +51,14 @@ export type Place = {
 export type SearchResult = {
   id: string;
   name: string;
-  address: string;
+  address?: string; // Made optional for consistency
   phone?: string | null;
   email?: string | null;
   website?: string | null;
   logo?: string | null;
   lat: number;
   lon: number;
+  relevanceScore?: number; // Added for search filtering/sorting
 };
 
 export type CategoryInfo = { category: string; googleTypes: string[] } | null;
@@ -292,16 +293,17 @@ export async function findNearbyStores(
 }
 
 // Convert Place to SearchResult (only essential data for display)
-export function toSearchResult(place: Place): SearchResult {
+export function toSearchResult(place: Place & { relevanceScore?: number }): SearchResult {
   return {
     id: place.id,
     name: place.name,
-    address: place.address || "Address not available",
+    address: place.address,
     phone: place.phone || null,
     email: place.email || null,
     website: place.website || null,
     lat: place.lat,
     lon: place.lon,
+    relevanceScore: place.relevanceScore,
   };
 }
 

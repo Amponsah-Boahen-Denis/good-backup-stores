@@ -1,3 +1,5 @@
+"use client";
+
 import LoginFeature from "@/features/Auth/Login";
 
 export default function LoginPage() {

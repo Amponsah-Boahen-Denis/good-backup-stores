@@ -229,7 +229,7 @@ export default function SearchFilters({ results, onFiltersChange, onClearFilters
                   name="sortBy"
                   value="relevance"
                   checked={filters.sortBy === "relevance"}
-                  onChange={(e) => handleFilterChange("sortBy", e.target.value)}
+                  onChange={(e) => handleFilterChange("sortBy", e.target.value as "relevance" | "name" | "distance")}
                   className="border-gray-300"
                 />
                 <span className="text-sm">Relevance</span>
@@ -240,7 +240,7 @@ export default function SearchFilters({ results, onFiltersChange, onClearFilters
                   name="sortBy"
                   value="name"
                   checked={filters.sortBy === "name"}
-                  onChange={(e) => handleFilterChange("sortBy", e.target.value)}
+                  onChange={(e) => handleFilterChange("sortBy", e.target.value as "relevance" | "name" | "distance")}
                   className="border-gray-300"
                 />
                 <span className="text-sm">Name (A-Z)</span>
@@ -251,7 +251,7 @@ export default function SearchFilters({ results, onFiltersChange, onClearFilters
                   name="sortBy"
                   value="distance"
                   checked={filters.sortBy === "distance"}
-                  onChange={(e) => handleFilterChange("sortBy", e.target.value)}
+                  onChange={(e) => handleFilterChange("sortBy", e.target.value as "relevance" | "name" | "distance")}
                   className="border-gray-300"
                 />
                 <span className="text-sm">Distance</span>

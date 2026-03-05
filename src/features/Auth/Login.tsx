@@ -12,20 +12,40 @@ export default function Login() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
 
+  const passwordRules = (pwd: string) => {
+    const errors: string[] = [];
+    if (pwd.length < 8) errors.push("at least 8 characters");
+    if (!/[a-zA-Z]/.test(pwd)) errors.push("a letter");
+    if (!/\d/.test(pwd)) errors.push("a number");
+    return errors;
+  };
+
+  const validateField = (name: string, value: string): string | null => {
+    switch (name) {
+      case "email":
+        if (!value) return "Email is required";
+        if (!/\S+@\S+\.\S+/.test(value)) return "Please enter a valid email";
+        return null;
+      case "password":
+        if (!value) return "Password is required";
+        const pwErrors = passwordRules(value);
+        if (pwErrors.length > 0) {
+          return `Password must contain ${pwErrors.join(", ")}`;
+        }
+        return null;
+      default:
+        return null;
+    }
+  };
+
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
+    const emailError = validateField("email", formData.email);
+    if (emailError) newErrors.email = emailError;
 
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
+    const passwordError = validateField("password", formData.password);
+    if (passwordError) newErrors.password = passwordError;
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -59,11 +79,10 @@ export default function Login() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
-    }
+
+    // validate field as user types
+    const fieldError = validateField(name, value);
+    setErrors(prev => ({ ...prev, [name]: fieldError || "" }));
   };
 
   return (
@@ -75,6 +94,18 @@ export default function Login() {
             Sign in to your My-Best account
           </p>
         </div>
+
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={() => alert("Google sign-in placeholder")}
+            className="w-full max-w-xs flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700 text-sm"
+          >
+            {/* insert Google icon if available */}
+            <span>Continue with Google</span>
+          </button>
+        </div>
+        <div className="text-center text-sm text-gray-500 dark:text-gray-400">or</div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {errors.general && (
@@ -133,6 +164,12 @@ export default function Login() {
             {errors.password && (
               <p id="password-error" className="text-sm text-red-600 dark:text-red-400">
                 {errors.password}
+              </p>
+            )}
+            {/* password requirements hint */}
+            {formData.password && passwordRules(formData.password).length > 0 && (
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                Must include {passwordRules(formData.password).join(", ")}.
               </p>
             )}
           </div>
