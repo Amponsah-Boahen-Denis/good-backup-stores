@@ -24,6 +24,7 @@ export default function StoreForm({ initial, onSubmit, onCancel }: Props) {
   const [website, setWebsite] = useState(initial?.website || "");
   const [lat, setLat] = useState(initial?.lat?.toString() || "");
   const [lon, setLon] = useState(initial?.lon?.toString() || "");
+  const [workingHours, setWorkingHours] = useState(initial?.workingHours || "");
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -37,6 +38,7 @@ export default function StoreForm({ initial, onSubmit, onCancel }: Props) {
       website: website ? sanitizeInput(String(website)) : null,
       email: email ? sanitizeInput(String(email)) : null,
       phone: phone ? sanitizeInput(String(phone)) : null,
+      workingHours: workingHours ? sanitizeInput(String(workingHours)) : null,
       lat: lat ? parseFloat(lat) : null,
       lon: lon ? parseFloat(lon) : null,
     } as Omit<StoreSubmission, "id" | "createdAt" | "updatedAt">;
@@ -94,6 +96,24 @@ export default function StoreForm({ initial, onSubmit, onCancel }: Props) {
             <label htmlFor={`${idBase}-website`} className="text-sm font-medium">Website</label>
             <input id={`${idBase}-website`} value={website || ""} onChange={(e) => setWebsite(e.target.value)} className="h-10 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 text-sm" placeholder="https://..." />
           </div>
+        </div>
+      </div>
+
+      {/* Working Hours */}
+      <div className="space-y-2">
+        <h3 className="text-sm font-medium text-black/70 dark:text-white/70">Working Hours (optional)</h3>
+        <div className="flex flex-col gap-1">
+          <label htmlFor={`${idBase}-workingHours`} className="text-sm font-medium">Hours</label>
+          <input
+            id={`${idBase}-workingHours`}
+            value={workingHours || ""}
+            onChange={(e) => setWorkingHours(e.target.value)}
+            className="h-10 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 text-sm"
+            placeholder="e.g., 09:00-17:00 or Mo-Fr 09:00-17:00, Sa 10:00-16:00"
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Format: HH:MM-HH:MM or add days (e.g., Mo-Fr 09:00-17:00)
+          </p>
         </div>
       </div>
 

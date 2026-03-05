@@ -36,6 +36,7 @@ export async function GET(req: NextRequest) {
       phone: store.phone || null,
       email: store.email || null,
       website: store.website || null,
+      workingHours: store.workingHours || null,
       lat: store.lat || 0,
       lon: store.lon || 0,
       createdAt: store.createdAt,

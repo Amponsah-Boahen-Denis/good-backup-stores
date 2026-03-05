@@ -12,6 +12,7 @@ type SearchResult = {
   phone?: string | null;
   email?: string | null;
   website?: string | null;
+  workingHours?: string | null;
   lat: number;
   lon: number;
 };
@@ -162,7 +163,7 @@ export default function StoreSearchWidget() {
                         📍 {store.address}
                       </p>
                     )}
-                    <div className="text-xs text-green-700 dark:text-green-400 space-y-0.5">
+                  <div className="text-xs text-green-700 dark:text-green-400 space-y-0.5">
                       {store.phone && <p>📞 {store.phone}</p>}
                       {store.email && <p>✉️ {store.email}</p>}
                       {store.website && (
@@ -178,6 +179,7 @@ export default function StoreSearchWidget() {
                           </a>
                         </p>
                       )}
+                      {store.workingHours && <p>🕐 {store.workingHours}</p>}
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       ID: {store.id}
