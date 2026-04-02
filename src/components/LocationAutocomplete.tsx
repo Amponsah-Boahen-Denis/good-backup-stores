@@ -59,7 +59,7 @@ export default function LocationAutocomplete({ value, onChange, placeholder = "C
         onChange={(e) => setQuery(e.target.value)}
         onBlur={() => onChange(query)}
         placeholder={placeholder}
-        className="h-10 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 text-sm"
+        className="h-10 rounded-xl border border-sky-200 bg-white/80 px-3 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 ease-out focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
       />
       {loading && <div className="absolute top-full left-0 mt-1 text-xs">Loading...</div>}
       {error && <div role="alert" className="absolute top-full left-0 mt-1 text-xs text-red-600">{error}</div>}

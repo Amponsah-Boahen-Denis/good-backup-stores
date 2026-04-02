@@ -9,9 +9,11 @@ import { getPendingStores, approveStore, rejectStore, getModerationStats, Modera
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-black/10 dark:border-white/15 p-4">
-      <p className="text-xs text-black/60 dark:text-white/60">{label}</p>
-      <p className="text-xl font-semibold">{value}</p>
+    <div className="rounded-[1.5rem] border border-slate-200 bg-white/90 dark:border-slate-700 dark:bg-slate-900/80 p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5">
+      <p className="text-[11px] uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">
+        {label}
+      </p>
+      <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-white">{value}</p>
     </div>
   );
 }
@@ -21,7 +23,9 @@ function StatusBadge({ status }: { status: UserStatus }) {
     : status === "blocked" ? "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300"
     : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300";
   const label = status === "on_hold" ? "On hold" : status.charAt(0).toUpperCase() + status.slice(1);
-  return <span className={`px-2 py-0.5 rounded-full text-xs ${color}`}>{label}</span>;
+  return <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium tracking-wide transition ${color}`}>
+    {label}
+  </span>;
 }
 
 export default function Admin() {
@@ -91,7 +95,7 @@ export default function Admin() {
   }), []);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10 space-y-8">
+    <main className="mx-auto max-w-6xl px-4 py-10 space-y-8 bg-slate-50 dark:bg-slate-950">
       <header className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">Admin Dashboard</h1>
         <p className="text-sm text-black/60 dark:text-white/60">Owner-only controls. Frontend-only demo; will connect to API later.</p>
@@ -101,8 +105,8 @@ export default function Admin() {
         <div className="rounded-md border border-rose-200 bg-rose-50 text-rose-800 px-3 py-2 text-sm">{error}</div>
       )}
 
-      <section>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <section className="rounded-[1.5rem] bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           <Stat label="Total users" value={metrics?.total ?? 0} />
           <Stat label="Active" value={metrics?.active ?? 0} />
           <Stat label="Blocked" value={metrics?.blocked ?? 0} />
@@ -111,8 +115,11 @@ export default function Admin() {
         </div>
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-medium">Search analytics</h2>
+      <section className="space-y-3 rounded-[1.5rem] bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold">Search analytics</h2>
+          <span className="text-sm text-slate-500 dark:text-slate-400">Realtime overview</span>
+        </div>
         {!analytics ? (
           <p className="text-sm text-black/60 dark:text-white/60">Loading analytics...</p>
         ) : (
@@ -144,11 +151,14 @@ export default function Admin() {
         )}
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-medium">System Settings</h2>
+      <section className="space-y-3 rounded-[1.5rem] bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold">System Settings</h2>
+          <span className="text-sm text-slate-500 dark:text-slate-400">Quick toggles</span>
+        </div>
         {systemSettings && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-lg border border-black/10 dark:border-white/15 p-4 space-y-3">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-950/80 p-4 space-y-3 shadow-sm">
               <h3 className="font-medium">General Settings</h3>
               <label className="flex items-center gap-2">
                 <input
@@ -175,7 +185,7 @@ export default function Admin() {
                 Require Approval for New Stores
               </label>
             </div>
-            <div className="rounded-lg border border-black/10 dark:border-white/15 p-4 space-y-3">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-950/80 p-4 space-y-3 shadow-sm">
               <h3 className="font-medium">Limits & Performance</h3>
               <label className="block">
                 Max Search Results:
@@ -200,8 +210,11 @@ export default function Admin() {
         )}
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-medium">Store Moderation</h2>
+      <section className="space-y-3 rounded-[1.5rem] bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold">Store Moderation</h2>
+          <span className="text-sm text-slate-500 dark:text-slate-400">Review queue</span>
+        </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
           <Stat label="Pending" value={moderationStats?.pending ?? 0} />
           <Stat label="Approved" value={moderationStats?.approved ?? 0} />
@@ -211,10 +224,10 @@ export default function Admin() {
         {pendingStores.length > 0 && (
           <div className="space-y-3">
             <h3 className="font-medium">Pending Approval</h3>
-            <div className="space-y-2">
+            <div className="space-y-4">
               {pendingStores.map((store) => (
-                <div key={store.id} className="rounded-lg border border-black/10 dark:border-white/15 p-4">
-                  <div className="flex justify-between items-start">
+                <div key={store.id} className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-950/80 p-4 shadow-sm transition hover:-translate-y-0.5">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <h4 className="font-medium">{store.name}</h4>
                       <p className="text-sm text-black/60 dark:text-white/60">{store.address}</p>
@@ -224,7 +237,7 @@ export default function Admin() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => actions.approveStore(store.id)}
-                        className="px-3 py-1 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 text-sm"
+                        className="px-3 py-1 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 transition text-sm"
                       >
                         Approve
                       </button>
@@ -233,7 +246,7 @@ export default function Admin() {
                           const reason = prompt("Rejection reason:");
                           if (reason) actions.rejectStore(store.id, reason);
                         }}
-                        className="px-3 py-1 rounded-md bg-rose-600 text-white hover:bg-rose-700 text-sm"
+                        className="px-3 py-1 rounded-full bg-rose-600 text-white hover:bg-rose-700 transition text-sm"
                       >
                         Reject
                       </button>
@@ -246,17 +259,20 @@ export default function Admin() {
         )}
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-medium">Users</h2>
+      <section className="space-y-3 rounded-[1.5rem] bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold">Users</h2>
+          <span className="text-sm text-slate-500 dark:text-slate-400">User management</span>
+        </div>
         {loading ? (
           <p className="text-sm text-black/60 dark:text-white/60">Loading...</p>
         ) : users.length === 0 ? (
           <p className="text-sm text-black/60 dark:text-white/60">No users found.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b border-black/10 dark:border-white/15 text-left">
+          <div className="overflow-x-auto rounded-[1.5rem] border border-slate-200 dark:border-slate-700 bg-white/95 shadow-sm">
+            <table className="min-w-full text-sm divide-y divide-slate-200 dark:divide-slate-700">
+              <thead className="bg-slate-50 dark:bg-slate-950">
+                <tr className="border-b border-slate-200 dark:border-slate-700 text-left">
                   <th className="py-2 pr-4">Name</th>
                   <th className="py-2 pr-4">Email</th>
                   <th className="py-2 pr-4">Plan</th>
@@ -269,13 +285,13 @@ export default function Admin() {
               <tbody>
                 {users.map((u) => (
                   <tr key={u.id} className="border-b border-black/5 dark:border-white/10">
-                    <td className="py-2 pr-4 whitespace-nowrap">{u.name}</td>
-                    <td className="py-2 pr-4 whitespace-nowrap">{u.email}</td>
+                    <td className="py-3 pr-4 whitespace-nowrap text-slate-900 dark:text-white">{u.name}</td>
+                    <td className="py-3 pr-4 whitespace-nowrap text-slate-600 dark:text-slate-400">{u.email}</td>
                     <td className="py-2 pr-4 whitespace-nowrap">
                       <select
                         value={u.planType || "starter"}
                         onChange={(e) => actions.setPlan(u.id, e.target.value as "starter" | "pro" | "business")}
-                        className="px-2 py-1 border rounded text-sm"
+                        className="px-3 py-2 border border-slate-200 bg-slate-50 text-sm rounded-xl transition focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-300"
                       >
                         <option value="starter">Starter</option>
                         <option value="pro">Pro</option>
@@ -287,15 +303,15 @@ export default function Admin() {
                     <td className="py-2 pr-4 whitespace-nowrap">{new Date(u.updatedAt).toLocaleString()}</td>
                     <td className="py-2 pr-4 whitespace-nowrap flex gap-2 flex-wrap">
                       {u.status !== "blocked" && (
-                        <button onClick={() => actions.block(u.id)} className="px-2 py-1 rounded-md bg-rose-600 text-white hover:bg-rose-700 text-xs">Block</button>
+                        <button onClick={() => actions.block(u.id)} className="px-3 py-1 rounded-full bg-rose-600 text-white hover:bg-rose-700 transition text-xs">Block</button>
                       )}
                       {u.status !== "on_hold" && (
-                        <button onClick={() => actions.hold(u.id)} className="px-2 py-1 rounded-md bg-amber-500 text-white hover:bg-amber-600 text-xs">Hold</button>
+                        <button onClick={() => actions.hold(u.id)} className="px-3 py-1 rounded-full bg-amber-500 text-white hover:bg-amber-600 transition text-xs">Hold</button>
                       )}
                       {u.status !== "active" && (
-                        <button onClick={() => actions.activate(u.id)} className="px-2 py-1 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 text-xs">Activate</button>
+                        <button onClick={() => actions.activate(u.id)} className="px-3 py-1 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 transition text-xs">Activate</button>
                       )}
-                      <button onClick={() => actions.delete(u.id)} className="px-2 py-1 rounded-md bg-red-600 text-white hover:bg-red-700 text-xs">Delete</button>
+                      <button onClick={() => actions.delete(u.id)} className="px-3 py-1 rounded-full bg-red-600 text-white hover:bg-red-700 transition text-xs">Delete</button>
                     </td>
                   </tr>
                 ))}
@@ -305,32 +321,35 @@ export default function Admin() {
         )}
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-medium">Data Management</h2>
+      <section className="space-y-3 rounded-[1.5rem] bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold">Data Management</h2>
+          <span className="text-sm text-slate-500 dark:text-slate-400">Backup and maintenance</span>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="rounded-lg border border-black/10 dark:border-white/15 p-4 space-y-3">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-950/80 p-4 space-y-3 shadow-sm">
             <h3 className="font-medium">System Controls</h3>
             <div className="space-y-2">
               <button
                 onClick={actions.clearCaches}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition text-sm"
               >
                 Clear All Caches
               </button>
               <button
                 onClick={actions.resetAnalytics}
-                className="w-full px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 text-sm"
+                className="w-full px-4 py-2 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition text-sm"
               >
                 Reset Analytics
               </button>
             </div>
           </div>
-          <div className="rounded-lg border border-black/10 dark:border-white/15 p-4 space-y-3">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-950/80 p-4 space-y-3 shadow-sm">
             <h3 className="font-medium">Data Backup</h3>
             <div className="space-y-2">
               <button
                 onClick={actions.exportData}
-                className="w-full px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 text-sm"
+                className="w-full px-4 py-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition text-sm"
               >
                 Export All Data
               </button>

@@ -5,6 +5,7 @@ import Button from "@/components/Button";
 import CountryInput from "@/components/CountryInput";
 import LogoUpload from "@/components/LogoUpload";
 import sanitizeInput from "@/utils/sanitizeInput";
+import { storeCategories } from "@/utils/storeCategories";
 import { StoreSubmission } from "@/services/userStores";
 
 type Props = {
@@ -19,6 +20,7 @@ export default function StoreForm({ initial, onSubmit, onCancel }: Props) {
   const [country, setCountry] = useState(initial?.country || "");
   const [address, setAddress] = useState(initial?.address || "");
   const [logo, setLogo] = useState(initial?.logo || "");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(Array.isArray(initial?.category) ? initial.category : initial?.category ? [initial.category] : []);
   const [phone, setPhone] = useState(initial?.phone || "");
   const [email, setEmail] = useState(initial?.email || "");
   const [website, setWebsite] = useState(initial?.website || "");
@@ -27,11 +29,14 @@ export default function StoreForm({ initial, onSubmit, onCancel }: Props) {
   const [workingHours, setWorkingHours] = useState(initial?.workingHours || "");
   const [error, setError] = useState<string | null>(null);
 
+  const categoryOptions = storeCategories;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     const cleaned = {
       name: sanitizeInput(name),
+      category: selectedCategories.length ? selectedCategories.map((item) => sanitizeInput(item)) : null,
       country: sanitizeInput(country),
       address: sanitizeInput(address),
       logo: logo || null,
@@ -43,6 +48,7 @@ export default function StoreForm({ initial, onSubmit, onCancel }: Props) {
       lon: lon ? parseFloat(lon) : null,
     } as Omit<StoreSubmission, "id" | "createdAt" | "updatedAt">;
     if (!cleaned.name) return setError("Store name is required.");
+    if (!cleaned.category || cleaned.category.length === 0) return setError("At least one category is required.");
     if (!cleaned.country) return setError("Country is required.");
     if (!cleaned.address) return setError("Address is required.");
     if (!cleaned.logo) return setError("Store logo is required.");
@@ -69,14 +75,40 @@ export default function StoreForm({ initial, onSubmit, onCancel }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
           <label htmlFor={`${idBase}-name`} className="text-sm font-medium">Store name *</label>
-          <input id={`${idBase}-name`} value={name} onChange={(e) => setName(e.target.value)} className="h-10 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 text-sm" required />
+          <input id={`${idBase}-name`} value={name} onChange={(e) => setName(e.target.value)} className="h-10 rounded-xl border border-sky-200 bg-white/80 px-3 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 ease-out focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100" required />
         </div>
         <div>
           <CountryInput id={`${idBase}-country`} value={country} onChange={setCountry} />
         </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium">Categories *</label>
+          <div className="mt-2 max-h-72 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50 p-3">
+            <div className="space-y-2">
+              {categoryOptions.map((option) => (
+                <label key={option.value} className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm transition hover:border-sky-300">
+                  <input
+                    type="checkbox"
+                    value={option.value}
+                    checked={selectedCategories.includes(option.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSelectedCategories((current) =>
+                        current.includes(value)
+                          ? current.filter((item) => item !== value)
+                          : [...current, value]
+                      );
+                    }}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  {option.label}
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
         <div className="md:col-span-2 flex flex-col gap-1">
           <label htmlFor={`${idBase}-address`} className="text-sm font-medium">Address *</label>
-          <input id={`${idBase}-address`} value={address} onChange={(e) => setAddress(e.target.value)} className="h-10 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 text-sm" required />
+          <input id={`${idBase}-address`} value={address} onChange={(e) => setAddress(e.target.value)} className="h-10 rounded-xl border border-sky-200 bg-white/80 px-3 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 ease-out focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100" required />
         </div>
       </div>
 
@@ -86,15 +118,15 @@ export default function StoreForm({ initial, onSubmit, onCancel }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="flex flex-col gap-1">
             <label htmlFor={`${idBase}-phone`} className="text-sm font-medium">Phone</label>
-            <input id={`${idBase}-phone`} value={phone || ""} onChange={(e) => setPhone(e.target.value)} className="h-10 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 text-sm" />
+            <input id={`${idBase}-phone`} value={phone || ""} onChange={(e) => setPhone(e.target.value)} className="h-10 rounded-xl border border-sky-200 bg-white/80 px-3 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 ease-out focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100" />
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor={`${idBase}-email`} className="text-sm font-medium">Email</label>
-            <input id={`${idBase}-email`} value={email || ""} onChange={(e) => setEmail(e.target.value)} className="h-10 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 text-sm" type="email" />
+            <input id={`${idBase}-email`} value={email || ""} onChange={(e) => setEmail(e.target.value)} className="h-10 rounded-xl border border-sky-200 bg-white/80 px-3 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 ease-out focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100" type="email" />
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor={`${idBase}-website`} className="text-sm font-medium">Website</label>
-            <input id={`${idBase}-website`} value={website || ""} onChange={(e) => setWebsite(e.target.value)} className="h-10 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 text-sm" placeholder="https://..." />
+            <input id={`${idBase}-website`} value={website || ""} onChange={(e) => setWebsite(e.target.value)} className="h-10 rounded-xl border border-sky-200 bg-white/80 px-3 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 ease-out focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100" placeholder="https://..." />
           </div>
         </div>
       </div>
@@ -108,7 +140,7 @@ export default function StoreForm({ initial, onSubmit, onCancel }: Props) {
             id={`${idBase}-workingHours`}
             value={workingHours || ""}
             onChange={(e) => setWorkingHours(e.target.value)}
-            className="h-10 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 text-sm"
+            className="h-10 rounded-xl border border-sky-200 bg-white/80 px-3 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 ease-out focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
             placeholder="e.g., 09:00-17:00 or Mo-Fr 09:00-17:00, Sa 10:00-16:00"
           />
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -123,11 +155,11 @@ export default function StoreForm({ initial, onSubmit, onCancel }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="flex flex-col gap-1">
             <label htmlFor={`${idBase}-lat`} className="text-sm font-medium">Latitude</label>
-            <input id={`${idBase}-lat`} value={lat} onChange={(e) => setLat(e.target.value)} className="h-10 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 text-sm" placeholder="e.g., 40.7128" />
+            <input id={`${idBase}-lat`} value={lat} onChange={(e) => setLat(e.target.value)} className="h-10 rounded-xl border border-sky-200 bg-white/80 px-3 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 ease-out focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100" placeholder="e.g., 40.7128" />
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor={`${idBase}-lon`} className="text-sm font-medium">Longitude</label>
-            <input id={`${idBase}-lon`} value={lon} onChange={(e) => setLon(e.target.value)} className="h-10 rounded-md border border-black/10 dark:border-white/15 bg-transparent px-3 text-sm" placeholder="e.g., -74.0060" />
+            <input id={`${idBase}-lon`} value={lon} onChange={(e) => setLon(e.target.value)} className="h-10 rounded-xl border border-sky-200 bg-white/80 px-3 text-sm text-slate-900 placeholder:text-slate-400 transition duration-200 ease-out focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100" placeholder="e.g., -74.0060" />
           </div>
         </div>
       </div>

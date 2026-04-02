@@ -22,7 +22,7 @@ export type CanonicalStore = {
 
 export type SearchSnapshot = {
   key: string;
-  query: { product: string; category?: string | null; country?: string; lat?: number; lon?: number; radiusMeters: number };
+  query: { product: string; category?: string[] | null; country?: string; lat?: number; lon?: number; radiusMeters: number };
   storeIds: string[];
   totalCount: number;
   source: "db" | "provider" | "mixed";
@@ -41,9 +41,11 @@ function writeJSON<T>(key: string, value: T) {
   safeWriteJSON(key, value);
 }
 
-export function makeCacheKey(product: string, category: string | null | undefined, country: string | undefined, lat?: number, lon?: number, radiusMeters: number = 5000): string {
+export function makeCacheKey(product: string, category: string | string[] | null | undefined, country: string | undefined, lat?: number, lon?: number, radiusMeters: number = 5000): string {
   const p = extractProductName(product).toLowerCase();
-  const c = (category || "").toLowerCase();
+  const c = Array.isArray(category)
+    ? category.map((item) => item.toLowerCase()).join(",")
+    : (category || "").toLowerCase();
   const co = (country || "").toLowerCase();
   const coord = lat && lon ? `${lat.toFixed(3)},${lon.toFixed(3)}` : "";
   return [p, c, co, coord, radiusMeters].filter(Boolean).join("|");
@@ -65,7 +67,7 @@ export function saveSearchSnapshots(map: Record<string, SearchSnapshot>) {
   writeJSON(LS_SNAPSHOTS, map);
 }
 
-export function upsertStores(places: Place[], category: string | null): string[] {
+export function upsertStores(places: Place[], category: string | string[] | null): string[] {
   const stores = getCanonicalStores();
   const now = Date.now();
   const ids: string[] = [];
@@ -82,7 +84,7 @@ export function upsertStores(places: Place[], category: string | null): string[]
       lat: p.lat,
       lon: p.lon,
       contact: { phone: p.phone ?? undefined, email: p.email ?? undefined, website: p.website ?? undefined },
-      category: category || null,
+      category: Array.isArray(category) ? category.join(", ") : category || null,
       tags: p.tags || [],
       providers: [{ source: "osm", fetchedAt: now }],
       createdAt: existing?.createdAt || now,

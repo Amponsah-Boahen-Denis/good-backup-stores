@@ -66,70 +66,111 @@ export type CategoryInfo = { category: string; googleTypes: string[] } | null;
 function categoryToOverpassFilters(categoryInfo: CategoryInfo): string[] {
   if (!categoryInfo) return [];
   const cat = categoryInfo.category.toLowerCase();
-  // Map category to OSM shop/amenity filters
+
+  // Expanded category mapping to cover all store categories
   const map: Record<string, string[]> = {
     supermarket: [
       'nwr["shop"="supermarket"]',
       'nwr["shop"="convenience"]',
+      'nwr["shop"="grocery"]',
       'nwr["amenity"="marketplace"]',
     ],
     electronics: [
       'nwr["shop"="electronics"]',
       'nwr["shop"="computer"]',
+      'nwr["shop"="mobile_phone"]',
+      'nwr["shop"="hifi"]',
     ],
     clothing: [
       'nwr["shop"="clothes"]',
       'nwr["shop"="shoes"]',
-    ],
-    books: [
-      'nwr["shop"="books"]',
-    ],
-    furniture: [
-      'nwr["shop"="furniture"]',
+      'nwr["shop"="fashion"]',
+      'nwr["shop"="boutique"]',
     ],
     pharmacy: [
       'nwr["amenity"="pharmacy"]',
+      'nwr["shop"="chemist"]',
     ],
-    sports: [
-      'nwr["shop"="sports"]',
-    ],
-    toys: [
-      'nwr["shop"="toys"]',
-    ],
-    hardware: [
-      'nwr["shop"="hardware"]',
-      'nwr["shop"="doityourself"]',
+    beauty: [
+      'nwr["shop"="beauty"]',
+      'nwr["shop"="cosmetics"]',
+      'nwr["shop"="perfumery"]',
+      'nwr["shop"="hairdresser"]',
+      'nwr["shop"="nails"]',
     ],
     automotive: [
       'nwr["shop"="car"]',
       'nwr["shop"="car_parts"]',
       'nwr["shop"="tyres"]',
       'nwr["amenity"="car_repair"]',
+      'nwr["amenity"="car_wash"]',
     ],
-    beauty: [
-      'nwr["shop"="cosmetics"]',
-      'nwr["shop"="perfumery"]',
-      'nwr["shop"="beauty"]',
+    sports: [
+      'nwr["shop"="sports"]',
+      'nwr["shop"="bicycle"]',
+      'nwr["shop"="outdoor"]',
     ],
     household: [
       'nwr["shop"="houseware"]',
+      'nwr["shop"="kitchen"]',
+      'nwr["shop"="bathroom_furnishing"]',
     ],
-    computing: [
-      'nwr["shop"="computer"]',
-      'nwr["shop"="electronics"]',
+    pets: [
+      'nwr["shop"="pet"]',
+      'nwr["shop"="pet_grooming"]',
+    ],
+    books: [
+      'nwr["shop"="books"]',
+      'nwr["shop"="stationery"]',
+      'nwr["amenity"="library"]',
+    ],
+    furniture: [
+      'nwr["shop"="furniture"]',
+      'nwr["shop"="interior_decoration"]',
+    ],
+    toys: [
+      'nwr["shop"="toys"]',
+      'nwr["shop"="games"]',
+    ],
+    hardware: [
+      'nwr["shop"="hardware"]',
+      'nwr["shop"="doityourself"]',
+      'nwr["shop"="tool_hire"]',
+    ],
+    baby: [
+      'nwr["shop"="baby_goods"]',
+      'nwr["shop"="children"]',
+    ],
+    jewelry: [
+      'nwr["shop"="jewelry"]',
+      'nwr["shop"="watch"]',
     ],
     gardening: [
       'nwr["shop"="garden_centre"]',
       'nwr["shop"="florist"]',
+      'nwr["shop"="garden"]',
     ],
-    pets: [
-      'nwr["shop"="pet"]',
+    // Additional categories for broader coverage
+    food: [
+      'nwr["shop"="bakery"]',
+      'nwr["shop"="butcher"]',
+      'nwr["shop"="confectionery"]',
+      'nwr["amenity"="restaurant"]',
+      'nwr["amenity"="cafe"]',
     ],
-    baby: [
-      'nwr["shop"="baby_goods"]',
+    health: [
+      'nwr["amenity"="hospital"]',
+      'nwr["amenity"="clinic"]',
+      'nwr["amenity"="doctors"]',
     ],
-    jewelry: [
-      'nwr["shop"="jewelry"]',
+    finance: [
+      'nwr["amenity"="bank"]',
+      'nwr["amenity"="atm"]',
+    ],
+    entertainment: [
+      'nwr["amenity"="cinema"]',
+      'nwr["amenity"="theatre"]',
+      'nwr["shop"="music"]',
     ],
   };
   // Map selected Google types to likely OSM equivalents (best-effort)
@@ -190,15 +231,29 @@ export async function findNearbyStores(
   lon: number,
   productQuery: string,
   radiusMeters = 5000,
-  categoryInfo: CategoryInfo = null,
+  categoryInfo: CategoryInfo | string[] | null = null,
   maxResults = 20,
 ): Promise<Place[]> {
   const overpass = "https://overpass-api.de/api/interpreter";
-  const filters = categoryToOverpassFilters(categoryInfo);
+  const requestedCategories = Array.isArray(categoryInfo)
+    ? categoryInfo
+    : categoryInfo
+      ? [categoryInfo]
+      : [];
+  const filters = requestedCategories
+    .flatMap((item) =>
+      categoryToOverpassFilters(
+        typeof item === "string"
+          ? { category: item, googleTypes: [] }
+          : item
+      )
+    );
   const target = filters.length
     ? filters.map((f) => `${f}(around:${radiusMeters},${lat},${lon});`).join("\n    ")
     : `nwr["shop"](around:${radiusMeters},${lat},${lon});
-    nwr["amenity"~"market|supermarket|mall|convenience"](around:${radiusMeters},${lat},${lon});`;
+    nwr["amenity"~"restaurant|cafe|bank|pharmacy|hospital|school|fuel|parking"](around:${radiusMeters},${lat},${lon});
+    nwr["office"](around:${radiusMeters},${lat},${lon});
+    nwr["craft"](around:${radiusMeters},${lat},${lon});`;
 
   const query = `[
     out:json

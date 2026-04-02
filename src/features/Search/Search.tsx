@@ -72,7 +72,7 @@ export default function Search() {
     setFilteredResults(results);
   };
 
-  const handleSubmit = async (data: { product: string; country: string; location: string }) => {
+  const handleSubmit = async (data: { product: string; country: string; location: string; categories: string[] }) => {
     setError(null);
     setPlanLimitError(null);
     
@@ -88,6 +88,7 @@ export default function Search() {
       const rawProduct = extractProductName(sanitizeInput(data.product));
       const country = sanitizeInput(data.country);
       const location = sanitizeInput(data.location);
+      const selectedCategories = data.categories || [];
 
       if (!rawProduct) throw new Error("Please enter a product name.");
       if (!country && !location) throw new Error("Enter a country or a city/address.");
@@ -95,6 +96,7 @@ export default function Search() {
       setState({ product: rawProduct, country, location });
 
       const category = getProductCategory(rawProduct);
+      const requestedCategories = selectedCategories.length > 0 ? selectedCategories : category ? [category.category] : [];
 
       let coords: { lat: number; lon: number } | null = null;
       if (location) {
@@ -109,7 +111,7 @@ export default function Search() {
       const targetResults = Math.max(filters.maxResults, 20);
 
       // DB-first cache via localStorage snapshots
-      const cacheKey = makeCacheKey(rawProduct, category?.category || null, country || undefined, coords?.lat, coords?.lon, 5000);
+      const cacheKey = makeCacheKey(rawProduct, requestedCategories.length > 0 ? requestedCategories : null, country || undefined, coords?.lat, coords?.lon, 5000);
       const snap = getSnapshot(cacheKey);
 
       let stores: Place[] | null = null;
@@ -139,13 +141,13 @@ export default function Search() {
           }
         }
         if (!coords) throw new Error("Failed to resolve location.");
-        stores = await findNearbyStores(coords.lat, coords.lon, rawProduct, 5000, category);
+        stores = await findNearbyStores(coords.lat, coords.lon, rawProduct, 5000, requestedCategories.length > 0 ? requestedCategories : null);
 
         // Write-back cache: upsert canonical stores and snapshot
-        const ids = upsertStores(stores, category?.category || null);
+        const ids = upsertStores(stores, requestedCategories.length > 0 ? requestedCategories : category?.category || null);
         upsertSnapshot({
           key: cacheKey,
-          query: { product: rawProduct, category: category?.category || null, country, lat: coords.lat, lon: coords.lon, radiusMeters: 5000 },
+          query: { product: rawProduct, category: requestedCategories.length > 0 ? requestedCategories : category ? [category.category] : null, country, lat: coords.lat, lon: coords.lon, radiusMeters: 5000 },
           storeIds: ids,
           totalCount: ids.length,
           source: snap ? "mixed" : "provider",
@@ -153,7 +155,7 @@ export default function Search() {
         });
       }
 
-      const categoryName = category?.category ?? null;
+      const categoryName = requestedCategories.length > 0 ? requestedCategories.join(", ") : category?.category ?? null;
       const scored = (stores || []).map((s) => ({
         ...s,
         category: categoryName,

@@ -93,185 +93,205 @@ export default function Signup() {
   };
 
   return (
-    <div className="mx-auto max-w-md px-4 py-10">
-      <div className="space-y-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">Create Account</h1>
-          <p className="text-sm text-black/70 dark:text-white/70 mt-2">
-            Join My-Best and start finding stores near you
-          </p>
-        </div>
-
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={() => alert("Google sign-up placeholder")}
-            className="w-full max-w-xs flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700 text-sm"
-          >
-            <span>Continue with Google</span>
-          </button>
-        </div>
-        <div className="text-center text-sm text-gray-500 dark:text-gray-400">or</div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {errors.general && (
-            <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-3">
-              <p className="text-sm text-red-600 dark:text-red-400">{errors.general}</p>
+    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="grid gap-10 overflow-hidden rounded-[28px] border border-[#dce6f3] bg-white shadow-[0_24px_80px_rgba(15,23,42,0.1)] lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="bg-gradient-to-b from-[#eef5ff] to-white p-8 sm:p-12">
+          <div className="max-w-xl space-y-6">
+            <span className="inline-flex items-center rounded-full bg-[#dbe9ff] px-4 py-2 text-sm font-semibold text-[#0a66c2]">
+              Join the local inventory network
+            </span>
+            <h1 className="text-4xl font-bold tracking-tight text-[#0a66c2] sm:text-5xl">
+              Create your account
+            </h1>
+            <p className="text-base leading-7 text-slate-600">
+              Add your store, update working hours, and make your business discoverable to nearby shoppers.
+            </p>
+            <div className="space-y-4 text-sm text-slate-600">
+              <p className="flex items-start gap-3">
+                <span className="mt-1 inline-flex h-2.5 w-2.5 rounded-full bg-[#0a66c2]" />
+                Publish your store listing with contact and hours.
+              </p>
+              <p className="flex items-start gap-3">
+                <span className="mt-1 inline-flex h-2.5 w-2.5 rounded-full bg-[#0a66c2]" />
+                Give shoppers accurate local information instantly.
+              </p>
+              <p className="flex items-start gap-3">
+                <span className="mt-1 inline-flex h-2.5 w-2.5 rounded-full bg-[#0a66c2]" />
+                Built for small business owners and searchers alike.
+              </p>
             </div>
-          )}
-
-          <div className="space-y-1">
-            <label htmlFor="name" className="text-sm font-medium">
-              Full Name
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              value={formData.name}
-              onChange={handleInputChange}
-              className={`w-full h-10 rounded-md border px-3 text-sm bg-transparent ${
-                errors.name 
-                  ? "border-red-300 dark:border-red-700" 
-                  : "border-black/10 dark:border-white/15"
-              }`}
-              placeholder="Enter your full name"
-              aria-required="true"
-              aria-invalid={!!errors.name}
-              aria-describedby={errors.name ? "name-error" : undefined}
-            />
-            {errors.name && (
-              <p id="name-error" className="text-sm text-red-600 dark:text-red-400">
-                {errors.name}
-              </p>
-            )}
           </div>
+        </div>
 
-          <div className="space-y-1">
-            <label htmlFor="email" className="text-sm font-medium">
-              Email Address
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className={`w-full h-10 rounded-md border px-3 text-sm bg-transparent ${
-                errors.email 
-                  ? "border-red-300 dark:border-red-700" 
-                  : "border-black/10 dark:border-white/15"
-              }`}
-              placeholder="Enter your email"
-              aria-required="true"
-              aria-invalid={!!errors.email}
-              aria-describedby={errors.email ? "email-error" : undefined}
-            />
-            {errors.email && (
-              <p id="email-error" className="text-sm text-red-600 dark:text-red-400">
-                {errors.email}
+        <div className="px-6 py-8 sm:px-10 sm:py-12">
+          <div className="space-y-6">
+            <div className="space-y-2 text-center">
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[#0a66c2]">Sign up</p>
+              <h2 className="text-3xl font-semibold tracking-tight text-slate-900">Create your account</h2>
+              <p className="text-sm text-slate-600">
+                Start listing stores and reaching local customers quickly.
               </p>
-            )}
-          </div>
+            </div>
 
-          <div className="space-y-1">
-            <label htmlFor="password" className="text-sm font-medium">
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              className={`w-full h-10 rounded-md border px-3 text-sm bg-transparent ${
-                errors.password 
-                  ? "border-red-300 dark:border-red-700" 
-                  : "border-black/10 dark:border-white/15"
-              }`}
-              placeholder="Create a strong password"
-              aria-required="true"
-              aria-invalid={!!errors.password}
-              aria-describedby={errors.password ? "password-error" : undefined}
-            />
-            {errors.password && (
-              <p id="password-error" className="text-sm text-red-600 dark:text-red-400">
-                {errors.password}
-              </p>
-            )}
-            {formData.password && passwordRules(formData.password).length > 0 && (
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                Must include {passwordRules(formData.password).join(", ")}.
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <label htmlFor="confirmPassword" className="text-sm font-medium">
-              Confirm Password
-            </label>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              className={`w-full h-10 rounded-md border px-3 text-sm bg-transparent ${
-                errors.confirmPassword 
-                  ? "border-red-300 dark:border-red-700" 
-                  : "border-black/10 dark:border-white/15"
-              }`}
-              placeholder="Confirm your password"
-              aria-required="true"
-              aria-invalid={!!errors.confirmPassword}
-              aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
-            />
-            {errors.confirmPassword && (
-              <p id="confirm-password-error" className="text-sm text-red-600 dark:text-red-400">
-                {errors.confirmPassword}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <label className="flex items-start">
-              <input
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-0.5"
-                required
-              />
-              <span className="ml-2 text-sm text-black/70 dark:text-white/70">
-                I agree to the{" "}
-                <Link href="/terms" className="text-blue-600 hover:text-blue-500 dark:text-blue-400">
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link href="/privacy" className="text-blue-600 hover:text-blue-500 dark:text-blue-400">
-                  Privacy Policy
-                </Link>
-              </span>
-            </label>
-          </div>
-
-          <Button 
-            type="submit" 
-            disabled={isLoading}
-            className="w-full"
-          >
-            {isLoading ? "Creating Account..." : "Create Account"}
-          </Button>
-        </form>
-
-        <div className="text-center">
-          <p className="text-sm text-black/70 dark:text-white/70">
-            Already have an account?{" "}
-            <Link 
-              href="/Auth/Login" 
-              className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium"
+            <button
+              type="button"
+              onClick={() => alert("Google sign-up placeholder")}
+              className="flex w-full items-center justify-center gap-3 rounded-full border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
             >
-              Sign in
-            </Link>
-          </p>
+              Continue with Google
+            </button>
+            <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
+              <span className="h-px flex-1 bg-slate-200" />
+              <span>or use your email</span>
+              <span className="h-px flex-1 bg-slate-200" />
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {errors.general && (
+                <div className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">
+                  {errors.general}
+                </div>
+              )}
+
+              <div className="space-y-3">
+                <label htmlFor="name" className="text-sm font-medium text-slate-700">
+                  Full Name
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className={`w-full rounded-xl border px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-[#0a66c2] focus:outline-none focus:ring-2 focus:ring-[#dbe9ff] ${
+                    errors.name ? "border-red-300" : "border-slate-200"
+                  }`}
+                  placeholder="Jane Doe"
+                  aria-required="true"
+                  aria-invalid={!!errors.name}
+                  aria-describedby={errors.name ? "name-error" : undefined}
+                />
+                {errors.name && (
+                  <p id="name-error" className="text-sm text-red-600">
+                    {errors.name}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <label htmlFor="email" className="text-sm font-medium text-slate-700">
+                  Email Address
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className={`w-full rounded-xl border px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-[#0a66c2] focus:outline-none focus:ring-2 focus:ring-[#dbe9ff] ${
+                    errors.email ? "border-red-300" : "border-slate-200"
+                  }`}
+                  placeholder="you@example.com"
+                  aria-required="true"
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? "email-error" : undefined}
+                />
+                {errors.email && (
+                  <p id="email-error" className="text-sm text-red-600">
+                    {errors.email}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <label htmlFor="password" className="text-sm font-medium text-slate-700">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  className={`w-full rounded-xl border px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-[#0a66c2] focus:outline-none focus:ring-2 focus:ring-[#dbe9ff] ${
+                    errors.password ? "border-red-300" : "border-slate-200"
+                  }`}
+                  placeholder="Create a strong password"
+                  aria-required="true"
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? "password-error" : undefined}
+                />
+                {errors.password && (
+                  <p id="password-error" className="text-sm text-red-600">
+                    {errors.password}
+                  </p>
+                )}
+                {formData.password && passwordRules(formData.password).length > 0 && (
+                  <p className="text-xs text-slate-500">
+                    Must include {passwordRules(formData.password).join(", ")}.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">
+                  Confirm Password
+                </label>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  className={`w-full rounded-xl border px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-[#0a66c2] focus:outline-none focus:ring-2 focus:ring-[#dbe9ff] ${
+                    errors.confirmPassword ? "border-red-300" : "border-slate-200"
+                  }`}
+                  placeholder="Confirm your password"
+                  aria-required="true"
+                  aria-invalid={!!errors.confirmPassword}
+                  aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
+                />
+                {errors.confirmPassword && (
+                  <p id="confirm-password-error" className="text-sm text-red-600">
+                    {errors.confirmPassword}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-start gap-3 text-sm text-slate-600">
+                <input
+                  type="checkbox"
+                  className="mt-1 h-4 w-4 rounded border-slate-300 text-[#0a66c2] focus:ring-[#0a66c2]"
+                  required
+                />
+                <p>
+                  I agree to the{' '}
+                  <Link href="/terms" className="font-semibold text-[#0a66c2] transition hover:text-[#004a86]">
+                    Terms of Service
+                  </Link>{' '}
+                  and{' '}
+                  <Link href="/privacy" className="font-semibold text-[#0a66c2] transition hover:text-[#004a86]">
+                    Privacy Policy
+                  </Link>.
+                </p>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full rounded-full bg-[#0a66c2] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-[#0a66c210] transition hover:bg-[#004a86]"
+              >
+                {isLoading ? "Creating Account..." : "Create Account"}
+              </Button>
+            </form>
+
+            <div className="text-center text-sm text-slate-600">
+              Already have an account?{' '}
+              <Link href="/Auth/Login" className="font-semibold text-[#0a66c2] transition hover:text-[#004a86]">
+                Sign in
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

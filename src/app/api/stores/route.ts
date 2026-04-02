@@ -4,11 +4,16 @@ import { getDb } from "@/lib/mongoServer";
 type StoreRecord = {
   id: string;
   name: string;
+  category?: string | null;
   country: string;
   address: string;
+  logo?: string | null;
   website?: string | null;
   email?: string | null;
   phone?: string | null;
+  workingHours?: string | null;
+  lat?: number | null;
+  lon?: number | null;
   createdAt: number;
   updatedAt: number;
 };

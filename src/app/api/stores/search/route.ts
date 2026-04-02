@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
     const formattedResults = results.map((store) => ({
       id: store.id,
       name: store.name,
+      category: store.category || null,
       address: store.address,
       phone: store.phone || null,
       email: store.email || null,

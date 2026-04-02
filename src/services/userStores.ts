@@ -3,6 +3,7 @@ import sanitizeInput from "@/utils/sanitizeInput";
 export type StoreSubmission = {
   id: string;
   name: string;
+  category?: string[] | null;
   country: string;
   address: string;
   logo?: string | null;
@@ -41,6 +42,7 @@ export async function saveStore(input: Omit<StoreSubmission, "id" | "createdAt" 
   const cleaned: StoreSubmission = {
     id: input.id || crypto.randomUUID(),
     name: sanitizeInput(input.name),
+    category: input.category ? input.category.map((category) => sanitizeInput(category)) : null,
     country: sanitizeInput(input.country),
     address: sanitizeInput(input.address),
     logo: input.logo || null,
