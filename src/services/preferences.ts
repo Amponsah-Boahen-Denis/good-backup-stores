@@ -10,20 +10,15 @@ export type UserPreferences = {
 
 const defaultPrefs: UserPreferences = { layout: "grid" };
 
-import { safeGet, safeParse, safeWriteJSON } from "@/services/storage";
-
 export async function getUserPreferences(): Promise<UserPreferences> {
   try {
     const res = await fetch("/api/user-preferences", { cache: "no-store" });
     if (!res.ok) throw new Error(String(res.status));
     const json = (await res.json()) as Partial<UserPreferences>;
     return { ...defaultPrefs, ...json } as UserPreferences;
-  } catch {
-    if (typeof window !== "undefined") {
-      const raw = safeGet("user:prefs");
-      return safeParse<UserPreferences>(raw, defaultPrefs);
-    }
-    return defaultPrefs;
+  } catch (error) {
+    console.error("Failed to fetch preferences:", error);
+    throw new Error("Failed to load user preferences from database");
   }
 }
 
@@ -36,12 +31,11 @@ export async function updateUserPreferences(next: Partial<UserPreferences>): Pro
       body: JSON.stringify(merged),
     });
     if (!res.ok) throw new Error(String(res.status));
-  } catch {
-    if (typeof window !== "undefined") {
-      safeWriteJSON("user:prefs", merged);
-    }
+    return merged;
+  } catch (error) {
+    console.error("Failed to save preferences:", error);
+    throw new Error("Failed to save user preferences to database");
   }
-  return merged;
 }
 
 

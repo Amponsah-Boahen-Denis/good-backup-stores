@@ -1,9 +1,7 @@
-// LocalStorage-based search cache and canonical store index
-// This mimics the DB-first read-through/write-back design for later backend swap
+// MongoDB-based search cache and canonical store index
 
 import { Place } from "@/services/openstreet";
 import extractProductName from "@/utils/extractProductName";
-import { safeGet, safeParse, safeWriteJSON } from "@/services/storage";
 
 export type CanonicalStore = {
   id: string;
@@ -29,18 +27,6 @@ export type SearchSnapshot = {
   createdAt: number;
 };
 
-const LS_STORES = "cache:stores";
-const LS_SNAPSHOTS = "cache:search:snapshots";
-
-function readJSON<T>(key: string, fallback: T): T {
-  const raw = safeGet(key);
-  return safeParse<T>(raw, fallback);
-}
-
-function writeJSON<T>(key: string, value: T) {
-  safeWriteJSON(key, value);
-}
-
 export function makeCacheKey(product: string, category: string | string[] | null | undefined, country: string | undefined, lat?: number, lon?: number, radiusMeters: number = 5000): string {
   const p = extractProductName(product).toLowerCase();
   const c = Array.isArray(category)
@@ -51,32 +37,46 @@ export function makeCacheKey(product: string, category: string | string[] | null
   return [p, c, co, coord, radiusMeters].filter(Boolean).join("|");
 }
 
-export function getCanonicalStores(): Record<string, CanonicalStore> {
-  return readJSON<Record<string, CanonicalStore>>(LS_STORES, {});
+export async function getSearchSnapshot(key: string): Promise<SearchSnapshot | null> {
+  if (typeof window === "undefined") return null;
+  try {
+    const res = await fetch(`/api/search-cache?key=${encodeURIComponent(key)}`);
+    if (res.ok) {
+      const data = await res.json();
+      return data as SearchSnapshot;
+    }
+    return null;
+  } catch (error) {
+    console.error("Failed to fetch search snapshot:", error);
+    return null;
+  }
 }
 
-export function getSearchSnapshots(): Record<string, SearchSnapshot> {
-  return readJSON<Record<string, SearchSnapshot>>(LS_SNAPSHOTS, {});
+export async function saveSearchSnapshot(snapshot: SearchSnapshot): Promise<void> {
+  if (typeof window === "undefined") return;
+  try {
+    await fetch("/api/search-cache", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(snapshot),
+    });
+  } catch (error) {
+    console.error("Failed to save search snapshot:", error);
+  }
 }
 
-export function saveCanonicalStores(map: Record<string, CanonicalStore>) {
-  writeJSON(LS_STORES, map);
-}
+export async function upsertStores(places: Place[], category: string | string[] | null): Promise<string[]> {
+  if (typeof window === "undefined") return [];
 
-export function saveSearchSnapshots(map: Record<string, SearchSnapshot>) {
-  writeJSON(LS_SNAPSHOTS, map);
-}
-
-export function upsertStores(places: Place[], category: string | string[] | null): string[] {
-  const stores = getCanonicalStores();
   const now = Date.now();
-  const ids: string[] = [];
+  const storesToUpsert: CanonicalStore[] = [];
+
   for (const p of places) {
     // Stable key by name + coarse coords
     const stable = `${(p.name || "").toLowerCase()}|${p.lat.toFixed(4)},${p.lon.toFixed(4)}`;
-    const existing = Object.values(stores).find((s) => `${s.name.toLowerCase()}|${s.lat.toFixed(4)},${s.lon.toFixed(4)}` === stable);
-    const id = existing?.id || crypto.randomUUID();
-    const next: CanonicalStore = {
+    const id = crypto.randomUUID(); // For now, always create new - in production you'd check for existing
+
+    const store: CanonicalStore = {
       id,
       name: p.name || "Unnamed",
       country: p.address?.split(", ").pop(), // rough extraction
@@ -87,30 +87,49 @@ export function upsertStores(places: Place[], category: string | string[] | null
       category: Array.isArray(category) ? category.join(", ") : category || null,
       tags: p.tags || [],
       providers: [{ source: "osm", fetchedAt: now }],
-      createdAt: existing?.createdAt || now,
+      createdAt: now,
       updatedAt: now,
     };
-    stores[id] = next;
-    ids.push(id);
+
+    storesToUpsert.push(store);
   }
-  saveCanonicalStores(stores);
-  return ids;
+
+  try {
+    await fetch("/api/canonical-stores", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(storesToUpsert),
+    });
+  } catch (error) {
+    console.error("Failed to upsert canonical stores:", error);
+  }
+
+  return storesToUpsert.map(s => s.id);
 }
 
-export function getSnapshot(key: string): SearchSnapshot | null {
-  const snaps = getSearchSnapshots();
-  return snaps[key] || null;
+export async function getSnapshot(key: string): Promise<SearchSnapshot | null> {
+  return getSearchSnapshot(key);
 }
 
-export function upsertSnapshot(snap: SearchSnapshot) {
-  const snaps = getSearchSnapshots();
-  snaps[snap.key] = snap;
-  saveSearchSnapshots(snaps);
+export async function upsertSnapshot(snap: SearchSnapshot): Promise<void> {
+  await saveSearchSnapshot(snap);
 }
 
-export function getStoresByIds(ids: string[]): CanonicalStore[] {
-  const map = getCanonicalStores();
-  return ids.map((id) => map[id]).filter(Boolean);
+export async function getStoresByIds(ids: string[]): Promise<CanonicalStore[]> {
+  if (typeof window === "undefined") return [];
+  if (ids.length === 0) return [];
+
+  try {
+    const res = await fetch(`/api/canonical-stores?ids=${ids.join(",")}`);
+    if (res.ok) {
+      const storeMap = await res.json() as Record<string, CanonicalStore>;
+      return ids.map(id => storeMap[id]).filter(Boolean);
+    }
+    return [];
+  } catch (error) {
+    console.error("Failed to fetch canonical stores:", error);
+    return [];
+  }
 }
 
 

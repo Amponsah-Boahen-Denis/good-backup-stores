@@ -22,18 +22,18 @@ import { safeGet, safeParse, safeWriteJSON } from "@/services/storage";
 
 export async function listStores(): Promise<StoreSubmission[]> {
   if (typeof window === "undefined") return [];
-  // Try server API first
+  // Use server API
   try {
     const res = await fetch("/api/stores");
     if (res.ok) {
       const json = (await res.json()) as StoreSubmission[];
       return json;
     }
-  } catch {
-    // ignore and fallback to local
+    throw new Error(`API error: ${res.status}`);
+  } catch (error) {
+    console.error("Failed to fetch stores:", error);
+    throw new Error("Failed to load stores from database");
   }
-  const raw = safeGet(STORAGE_KEY);
-  return safeParse<StoreSubmission[]>(raw, []);
 }
 
 export async function saveStore(input: Omit<StoreSubmission, "id" | "createdAt" | "updatedAt"> & { id?: string }): Promise<StoreSubmission> {
@@ -56,39 +56,34 @@ export async function saveStore(input: Omit<StoreSubmission, "id" | "createdAt" 
     updatedAt: now,
   };
 
-  // Try server API
+  // Use server API
   try {
     if (input.id) {
       const res = await fetch("/api/stores", { method: "PUT", body: JSON.stringify(cleaned), headers: { "Content-Type": "application/json" } });
       if (res.ok) return (await res.json()) as StoreSubmission;
+      throw new Error(`Update failed: ${res.status}`);
     } else {
       const res = await fetch("/api/stores", { method: "POST", body: JSON.stringify(cleaned), headers: { "Content-Type": "application/json" } });
       if (res.ok) return (await res.json()) as StoreSubmission;
+      throw new Error(`Create failed: ${res.status}`);
     }
-  } catch {
-    // fall through to local save
+  } catch (error) {
+    console.error("Failed to save store:", error);
+    throw new Error("Failed to save store to database");
   }
-
-  const stores = await listStores();
-  cleaned.createdAt = input.id ? (stores.find(s => s.id === input.id)?.createdAt || now) : now;
-  const idx = stores.findIndex(s => s.id === cleaned.id);
-  if (idx >= 0) stores[idx] = cleaned; else stores.push(cleaned);
-  safeWriteJSON(STORAGE_KEY, stores);
-  return cleaned;
 }
 
 export async function deleteStore(id: string): Promise<void> {
   if (typeof window === "undefined") return;
-  // Try server API
+  // Use server API
   try {
     const res = await fetch(`/api/stores?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     if (res.ok) return;
-  } catch {
-    // fallback
+    throw new Error(`Delete failed: ${res.status}`);
+  } catch (error) {
+    console.error("Failed to delete store:", error);
+    throw new Error("Failed to delete store from database");
   }
-  const stores = await listStores();
-  const next = stores.filter(s => s.id !== id);
-  safeWriteJSON(STORAGE_KEY, next);
 }
 
 

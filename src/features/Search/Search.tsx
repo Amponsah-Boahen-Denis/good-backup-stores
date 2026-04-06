@@ -7,7 +7,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import ErrorAlert from "@/components/ErrorAlert";
 import { detectBrowserLocation } from "@/services/geolocation";
 import { findNearbyStores, toSearchResult, SearchResult, Place } from "@/services/openstreet";
-import { makeCacheKey, getSnapshot, getStoresByIds, upsertStores, upsertSnapshot } from "@/services/searchCache";
+import { makeCacheKey, getSnapshot, getStoresByIds, upsertStores, upsertSnapshot, CanonicalStore } from "@/services/searchCache";
 import { usePreferences } from "@/hooks/usePreferences";
 import { trackStoreAppearance, incrementSearchCount } from "@/services/businessAnalytics";
 import extractProductName from "@/utils/extractProductName";
@@ -110,14 +110,14 @@ export default function Search() {
       // For now infer from filters.maxResults as a proxy; backend will use plan limits.
       const targetResults = Math.max(filters.maxResults, 20);
 
-      // DB-first cache via localStorage snapshots
+      // DB-first cache via MongoDB snapshots
       const cacheKey = makeCacheKey(rawProduct, requestedCategories.length > 0 ? requestedCategories : null, country || undefined, coords?.lat, coords?.lon, 5000);
-      const snap = getSnapshot(cacheKey);
+      const snap = await getSnapshot(cacheKey);
 
       let stores: Place[] | null = null;
       if (snap && snap.storeIds?.length && snap.storeIds.length >= targetResults) {
-        const canonical = getStoresByIds(snap.storeIds);
-        stores = canonical.map<Place>((s) => ({
+        const canonical: CanonicalStore[] = await getStoresByIds(snap.storeIds);
+        stores = canonical.map<Place>((s: CanonicalStore) => ({
           id: s.id,
           name: s.name,
           lat: s.lat,
@@ -144,8 +144,8 @@ export default function Search() {
         stores = await findNearbyStores(coords.lat, coords.lon, rawProduct, 5000, requestedCategories.length > 0 ? requestedCategories : null);
 
         // Write-back cache: upsert canonical stores and snapshot
-        const ids = upsertStores(stores, requestedCategories.length > 0 ? requestedCategories : category?.category || null);
-        upsertSnapshot({
+        const ids = await upsertStores(stores, requestedCategories.length > 0 ? requestedCategories : category?.category || null);
+        await upsertSnapshot({
           key: cacheKey,
           query: { product: rawProduct, category: requestedCategories.length > 0 ? requestedCategories : category ? [category.category] : null, country, lat: coords.lat, lon: coords.lon, radiusMeters: 5000 },
           storeIds: ids,
