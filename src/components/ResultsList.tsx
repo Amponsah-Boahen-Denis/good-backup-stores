@@ -7,81 +7,87 @@ type Props = {
   layout: "grid" | "list";
 };
 
+function formatStreet(address?: string) {
+  if (!address) return "";
+  const parts = address.split(",").map((part) => part.trim()).filter(Boolean);
+  return parts.length > 1 ? parts[0] : address;
+}
+
 export default function ResultsList({ items, layout }: Props) {
   const handleStoreInteraction = (storeId: string) => {
     trackStoreClick(storeId);
   };
+
   if (!items || items.length === 0) {
     return <p className="text-sm text-black/60 dark:text-white/60">No stores found.</p>;
   }
-  if (layout === "grid") {
+
+  const cardClasses =
+    "rounded-3xl border border-black/10 dark:border-white/15 bg-white dark:bg-slate-950 shadow-sm shadow-black/5 p-5 transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-black/10";
+
+  const renderCard = (p: SearchResult) => {
+    const street = formatStreet(p.address);
+
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {items.map((p) => (
-          <article key={p.id} className="rounded-md border border-black/10 dark:border-white/15 p-4">
-            {p.logo && (
-              <Image
-                src={p.logo}
-                alt={`${p.name} logo`}
-                width={48}
-                height={48}
-                className="w-12 h-12 object-contain mb-2 rounded"
-              />
-            )}
-            <h3 className="font-medium text-base">{p.name}</h3>
-            <p className="text-xs text-black/70 dark:text-white/70 mt-1">{p.address || "Address not available"}</p>
-            <div className="mt-3 text-xs text-black/60 dark:text-white/60 space-y-1">
-              {p.phone && <p>📞 {p.phone}</p>}
-              {p.email && <p>✉️ {p.email}</p>}
-              {p.website && (
-                <p>
-                  🌐 <a className="underline text-blue-600 dark:text-blue-400 hover:no-underline" href={p.website} target="_blank" rel="noopener noreferrer" onClick={() => handleStoreInteraction(p.id)}>Visit website</a>
-                </p>
-              )}
-            </div>
-            {(p.lat && p.lon) && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">📍 {p.lat.toFixed(4)}, {p.lon.toFixed(4)}</p>
-            )}
-          </article>
-        ))}
-      </div>
-    );
-  }
-  return (
-    <ul className="divide-y divide-black/10 dark:divide-white/15 rounded-md border border-black/10 dark:border-white/15">
-      {items.map((p) => (
-        <li key={p.id} className="p-4">
-          <div className="flex gap-3">
-            {p.logo && (
-              <Image
-                src={p.logo}
-                alt={`${p.name} logo`}
-                width={48}
-                height={48}
-                className="w-12 h-12 object-contain rounded flex-shrink-0"
-              />
-            )}
-            <div className="flex-1">
-              <h3 className="font-medium text-base">{p.name}</h3>
-              <p className="text-xs text-black/70 dark:text-white/70 mt-1">{p.address || "Address not available"}</p>
-              <div className="mt-2 text-xs text-black/60 dark:text-white/60 space-y-1">
-                {p.phone && <p>📞 {p.phone}</p>}
-                {p.email && <p>✉️ {p.email}</p>}
-                {p.website && (
-                  <p>
-                    🌐 <a className="underline text-blue-600 dark:text-blue-400 hover:no-underline" href={p.website} target="_blank" rel="noopener noreferrer" onClick={() => handleStoreInteraction(p.id)}>Visit website</a>
-                  </p>
-                )}
-              </div>
-              {(p.lat && p.lon) && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">📍 {p.lat.toFixed(4)}, {p.lon.toFixed(4)}</p>
-              )}
-            </div>
+      <article key={p.id} className={cardClasses}>
+        <div className="flex items-start gap-4">
+          {p.logo ? (
+            <Image
+              src={p.logo}
+              alt={`${p.name} logo`}
+              width={56}
+              height={56}
+              className="w-14 h-14 rounded-2xl object-contain border border-black/10 dark:border-white/15 bg-slate-50 dark:bg-slate-900"
+            />
+          ) : (
+            <div className="w-14 h-14 rounded-2xl border border-black/10 dark:border-white/15 bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-sm text-black/60 dark:text-white/60">No logo</div>
+          )}
+          <div className="flex-1">
+            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">{p.name}</h3>
+            {street ? (
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{street}</p>
+            ) : null}
+            <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">{p.address || "Address not available"}</p>
           </div>
-        </li>
-      ))}
-    </ul>
-  );
+        </div>
+
+        <div className="mt-4 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+          {p.phone && (
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-sky-100 text-sky-700 dark:bg-sky-900/20 dark:text-sky-300 px-2 py-1 text-xs">📞</span>
+              <span>{p.phone}</span>
+            </div>
+          )}
+          {p.email && (
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300 px-2 py-1 text-xs">✉️</span>
+              <span>{p.email}</span>
+            </div>
+          )}
+          {p.website && (
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-violet-100 text-violet-700 dark:bg-violet-900/20 dark:text-violet-300 px-2 py-1 text-xs">🌐</span>
+              <a
+                className="underline text-blue-600 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-100"
+                href={p.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => handleStoreInteraction(p.id)}
+              >
+                Visit website
+              </a>
+            </div>
+          )}
+        </div>
+      </article>
+    );
+  };
+
+  if (layout === "grid") {
+    return <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">{items.map(renderCard)}</div>;
+  }
+
+  return <div className="space-y-4">{items.map(renderCard)}</div>;
 }
 
 

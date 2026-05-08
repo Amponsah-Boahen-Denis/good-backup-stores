@@ -8,7 +8,7 @@ declare module 'sanitize-html' {
     selfClosing?: string[];
     textFilter?: (text: string) => string;
     transformTags?: Record<string, (tagName: string, attribs: Record<string, string>) => { tagName: string; attribs: Record<string, string> }>;
-    exclusiveFilter?: (frame: any) => boolean;
+    exclusiveFilter?: (frame: unknown) => boolean;
   }
   
   export = sanitizeHtml;

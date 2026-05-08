@@ -72,8 +72,6 @@ export async function upsertStores(places: Place[], category: string | string[] 
   const storesToUpsert: CanonicalStore[] = [];
 
   for (const p of places) {
-    // Stable key by name + coarse coords
-    const stable = `${(p.name || "").toLowerCase()}|${p.lat.toFixed(4)},${p.lon.toFixed(4)}`;
     const id = crypto.randomUUID(); // For now, always create new - in production you'd check for existing
 
     const store: CanonicalStore = {

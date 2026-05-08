@@ -4,14 +4,23 @@ import { useState } from "react";
 import Link from "next/link";
 import Button from "@/components/Button";
 
+type SignupFormData = {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+
+type SignupFormErrors = Partial<Record<keyof SignupFormData | 'general', string>>;
+
 export default function Signup() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<SignupFormData>({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [errors, setErrors] = useState<SignupFormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const passwordRules = (pwd: string) => {
@@ -22,7 +31,7 @@ export default function Signup() {
     return reqs;
   };
 
-  const validateField = (name: string, value: string): string | null => {
+  const validateField = (name: keyof SignupFormData, value: string): string | null => {
     switch (name) {
       case "name":
         if (!value.trim()) return "Full name is required";
@@ -47,10 +56,11 @@ export default function Signup() {
   };
 
   const validateForm = () => {
-    const newErrors: { [key: string]: string } = {};
+    const newErrors: Partial<Record<keyof SignupFormData, string>> = {};
+    const fields: (keyof SignupFormData)[] = ["name", "email", "password", "confirmPassword"];
 
-    ["name", "email", "password", "confirmPassword"].forEach((field) => {
-      const err = validateField(field, (formData as any)[field]);
+    fields.forEach((field) => {
+      const err = validateField(field, formData[field]);
       if (err) newErrors[field] = err;
     });
 
@@ -84,7 +94,8 @@ export default function Signup() {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const name = e.target.name as keyof SignupFormData;
+    const { value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
 
     // validate field as user types

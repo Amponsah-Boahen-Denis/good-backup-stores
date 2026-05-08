@@ -51,15 +51,15 @@ export function scoreRelevance(query: string, candidate: { name?: string; tags?:
   return Math.round(score * 100) / 100; // Round to 2 decimal places
 }
 
-export function sortByRelevance<T extends { relevanceScore: number }>(items: T[]): T[] {
+export function sortByRelevance<T extends { relevanceScore: number; name?: string }>(items: T[]): T[] {
   return [...items].sort((a, b) => {
     // Primary sort by relevance score
     if (b.relevanceScore !== a.relevanceScore) {
       return b.relevanceScore - a.relevanceScore;
     }
     // Secondary sort by name length (shorter names often more relevant)
-    const aName = (a as any).name || "";
-    const bName = (b as any).name || "";
+    const aName = a.name || "";
+    const bName = b.name || "";
     return aName.length - bName.length;
   });
 }

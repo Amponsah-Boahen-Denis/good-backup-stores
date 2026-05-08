@@ -27,7 +27,6 @@ export async function GET(req: NextRequest) {
 
     const idArray = ids.split(",").filter(Boolean);
     const db = await getDb();
-    // @ts-ignore - MongoDB WithId<Document> to CanonicalStore cast
     const stores = await db.collection("canonical_stores")
       .find({ id: { $in: idArray } })
       .toArray() as unknown as CanonicalStore[];
@@ -35,8 +34,7 @@ export async function GET(req: NextRequest) {
     // Convert to a map for easy lookup
     const storeMap: Record<string, CanonicalStore> = {};
     stores.forEach(store => {
-      // @ts-ignore - MongoDB WithId<Document> to CanonicalStore cast
-      storeMap[store.id] = store as unknown as CanonicalStore;
+      storeMap[store.id] = store;
     });
 
     return NextResponse.json(storeMap);

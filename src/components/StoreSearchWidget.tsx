@@ -80,18 +80,18 @@ export default function StoreSearchWidget() {
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-6 bg-white dark:bg-gray-800">
+    <div className="rounded-lg border border-gray-200 bg-white p-6">
       <div className="space-y-4">
         <div>
-          <h3 className="text-lg font-semibold mb-2">Search Our Database</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Search Our Database</h3>
+          <p className="text-sm text-gray-600">
             Check if your store is already in our database or find specific stores
           </p>
         </div>
 
         <form onSubmit={handleSearch} className="space-y-4">
           <div className="space-y-1">
-            <label htmlFor="storeName" className="text-sm font-medium">
+            <label htmlFor="storeName" className="text-sm font-medium text-gray-900">
               Store Name *
             </label>
             <input
@@ -100,13 +100,13 @@ export default function StoreSearchWidget() {
               type="text"
               value={searchData.storeName}
               onChange={handleInputChange}
-              placeholder="e.g., Apple Store, Local Electronics"
-              className="w-full h-10 rounded-md border border-gray-300 dark:border-gray-600 px-3 text-sm bg-transparent"
+              placeholder="store name"
+              className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-500 transition-all duration-200 ease-out focus:border-[#0A66C2] focus:outline-none focus:ring-2 focus:ring-[#E7F0F7] hover:border-gray-400"
             />
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="address" className="text-sm font-medium">
+            <label htmlFor="address" className="text-sm font-medium text-gray-900">
               Address (Optional)
             </label>
             <input
@@ -115,8 +115,8 @@ export default function StoreSearchWidget() {
               type="text"
               value={searchData.address}
               onChange={handleInputChange}
-              placeholder="e.g., 123 Main St, New York"
-              className="w-full h-10 rounded-md border border-gray-300 dark:border-gray-600 px-3 text-sm bg-transparent"
+              placeholder="address"
+              className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-500 transition-all duration-200 ease-out focus:border-[#0A66C2] focus:outline-none focus:ring-2 focus:ring-[#E7F0F7] hover:border-gray-400"
             />
           </div>
 
@@ -146,24 +146,24 @@ export default function StoreSearchWidget() {
         {isLoading && <LoadingSpinner />}
 
         {results && results.length > 0 && (
-          <div className="space-y-3 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-sm font-medium">Found {results.length} store(s):</p>
+          <div className="space-y-3 mt-4 pt-4 border-t border-gray-200">
+            <p className="text-sm font-medium text-gray-900">Found {results.length} store(s):</p>
             <div className="space-y-2">
               {results.map((store) => (
                 <div
                   key={store.id}
-                  className="rounded-md bg-green-50 dark:bg-green-900/20 p-3 border border-green-200 dark:border-green-800"
+                  className="rounded-md bg-[#E7F0F7] p-3 border border-[#0A66C2]/20"
                 >
                   <div className="space-y-1">
-                    <h4 className="font-medium text-green-900 dark:text-green-200">
+                    <h4 className="font-medium text-[#0A66C2]">
                       ✓ {store.name}
                     </h4>
                     {store.address && (
-                      <p className="text-xs text-green-800 dark:text-green-300">
+                      <p className="text-xs text-gray-700">
                         📍 {store.address}
                       </p>
                     )}
-                  <div className="text-xs text-green-700 dark:text-green-400 space-y-0.5">
+                  <div className="text-xs text-gray-600 space-y-0.5">
                       {store.phone && <p>📞 {store.phone}</p>}
                       {store.email && <p>✉️ {store.email}</p>}
                       {store.website && (
@@ -173,7 +173,7 @@ export default function StoreSearchWidget() {
                             href={store.website}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="underline hover:no-underline"
+                            className="underline hover:no-underline text-[#0A66C2] hover:text-[#0A66C2]/80"
                           >
                             Visit website
                           </a>
@@ -181,7 +181,7 @@ export default function StoreSearchWidget() {
                       )}
                       {store.workingHours && <p>🕐 {store.workingHours}</p>}
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-gray-500">
                       ID: {store.id}
                     </p>
                   </div>
@@ -192,10 +192,10 @@ export default function StoreSearchWidget() {
         )}
 
         {searched && results && results.length === 0 && !error && (
-          <div className="rounded-md bg-yellow-50 dark:bg-yellow-900/20 p-3 border border-yellow-200 dark:border-yellow-800">
-            <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              Your store isn't in our database yet. Consider{" "}
-              <a href="/Profile" className="font-medium underline hover:no-underline">
+          <div className="rounded-md bg-[#E7F0F7] p-3 border border-[#0A66C2]/20">
+            <p className="text-sm text-[#0A66C2]">
+              Your store isn&apos;t in our database yet. Consider{" "}
+              <a href="#store-form" className="font-medium underline hover:no-underline">
                 submitting it
               </a>
               !

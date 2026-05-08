@@ -16,7 +16,7 @@ export interface SavedSearch {
   query: string;
   country: string;
   location: string;
-  filters: any;
+  filters: Record<string, unknown>;
   createdAt: number;
   lastUsed?: number;
   useCount: number;

@@ -17,9 +17,6 @@ export type StoreSubmission = {
   updatedAt: number;
 };
 
-const STORAGE_KEY = "user:stores";
-import { safeGet, safeParse, safeWriteJSON } from "@/services/storage";
-
 export async function listStores(): Promise<StoreSubmission[]> {
   if (typeof window === "undefined") return [];
   // Use server API

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import SearchForm from "@/components/SearchForm";
 import LayoutToggle from "@/components/LayoutToggle";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -30,8 +31,11 @@ type SearchState = {
 export default function Search() {
   const { prefs, setLayout } = usePreferences();
   const prefsLayout = prefs.layout;
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [state, setState] = useState<SearchState>({ product: "", country: "", location: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [autoSearchExecuted, setAutoSearchExecuted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [filteredResults, setFilteredResults] = useState<SearchResult[]>([]);
@@ -49,6 +53,27 @@ export default function Search() {
   useEffect(() => {
     detectBrowserLocation().catch(() => {});
   }, []);
+
+  useEffect(() => {
+    const product = searchParams?.get("product") || "";
+    const country = searchParams?.get("country") || "";
+    const location = searchParams?.get("location") || "";
+
+    if (product || country || location) {
+      setState({ product, country, location });
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const product = searchParams?.get("product") || "";
+    const country = searchParams?.get("country") || "";
+    const location = searchParams?.get("location") || "";
+
+    if (product && !autoSearchExecuted) {
+      setAutoSearchExecuted(true);
+      handleSubmit({ product, country, location, categories: [] }, { recordHistory: false });
+    }
+  }, [searchParams, autoSearchExecuted]);
 
   const handleLayoutChange = async (layout: "grid" | "list") => {
     await setLayout(layout);
@@ -72,7 +97,11 @@ export default function Search() {
     setFilteredResults(results);
   };
 
-  const handleSubmit = async (data: { product: string; country: string; location: string; categories: string[] }) => {
+  const handleSubmit = async (
+    data: { product: string; country: string; location: string; categories: string[] },
+    options?: { recordHistory?: boolean }
+  ) => {
+    const recordHistory = options?.recordHistory !== false;
     setError(null);
     setPlanLimitError(null);
     
@@ -186,7 +215,7 @@ export default function Search() {
         setError("Failed to fetch stores");
       }
       // Log history when we have a valid response (even if empty, skip)
-      if (ordered.length > 0) {
+      if (ordered.length > 0 && recordHistory) {
         await addHistory({ product: rawProduct, country, location, resultsCount: ordered.length });
       }
     } catch (e: unknown) {
@@ -205,6 +234,7 @@ export default function Search() {
         <LayoutToggle value={prefsLayout} onChange={handleLayoutChange} />
       </div>
       <SearchForm
+        defaultProduct={state.product}
         defaultCountry={state.country}
         defaultLocation={state.location}
         onSubmit={handleSubmit}

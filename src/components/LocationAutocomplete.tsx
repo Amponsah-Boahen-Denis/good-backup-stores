@@ -64,12 +64,12 @@ export default function LocationAutocomplete({ value, onChange, placeholder = "C
       {loading && <div className="absolute top-full left-0 mt-1 text-xs">Loading...</div>}
       {error && <div role="alert" className="absolute top-full left-0 mt-1 text-xs text-red-600">{error}</div>}
       {suggestions.length > 0 && (
-        <ul id={listId} role="listbox" className="absolute top-full left-0 mt-1 w-full bg-white dark:bg-black border border-black/10 dark:border-white/15 rounded-md shadow">
+        <ul id={listId} role="listbox" className="absolute top-full left-0 mt-1 w-full bg-white dark:bg-slate-900 border border-black/10 dark:border-white/15 rounded-md shadow">
           {suggestions.map((s) => (
             <li key={s} role="option" aria-selected={false}>
               <button
                 type="button"
-                className="w-full text-left px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/10"
+                className="w-full text-left px-3 py-2 text-sm text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-white/10"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { onChange(s); setQuery(s); setSuggestions([]); }}
               >

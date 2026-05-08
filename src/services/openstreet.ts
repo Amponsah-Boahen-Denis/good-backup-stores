@@ -63,11 +63,12 @@ export type SearchResult = {
 
 export type CategoryInfo = { category: string; googleTypes: string[] } | null;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function categoryToOverpassFilters(categoryInfo: CategoryInfo): string[] {
   if (!categoryInfo) return [];
   const cat = categoryInfo.category.toLowerCase();
 
-  // Expanded category mapping to cover all store categories
+  // Expanded category mapping to cover all store and business categories
   const map: Record<string, string[]> = {
     supermarket: [
       'nwr["shop"="supermarket"]',
@@ -150,60 +151,143 @@ function categoryToOverpassFilters(categoryInfo: CategoryInfo): string[] {
       'nwr["shop"="florist"]',
       'nwr["shop"="garden"]',
     ],
-    // Additional categories for broader coverage
+    // Food & Dining
+    restaurants: [
+      'nwr["amenity"="restaurant"]',
+      'nwr["amenity"="cafe"]',
+      'nwr["amenity"="fast_food"]',
+    ],
     food: [
       'nwr["shop"="bakery"]',
       'nwr["shop"="butcher"]',
       'nwr["shop"="confectionery"]',
-      'nwr["amenity"="restaurant"]',
-      'nwr["amenity"="cafe"]',
+      'nwr["shop"="deli"]',
+      'nwr["shop"="ice_cream"]',
     ],
-    health: [
+    bakeries: [
+      'nwr["shop"="bakery"]',
+      'nwr["shop"="pastry"]',
+    ],
+    // Professional Services
+    software: [
+      'nwr["office"="it"]',
+      'nwr["office"="software"]',
+      'nwr["office"="company"]',
+      'nwr["office"="yes"]',
+    ],
+    consulting: [
+      'nwr["office"="consulting"]',
+      'nwr["office"="accountant"]',
+      'nwr["office"="lawyer"]',
+      'nwr["office"="architect"]',
+    ],
+    legal: [
+      'nwr["office"="lawyer"]',
+      'nwr["amenity"="courthouse"]',
+    ],
+    accounting: [
+      'nwr["office"="accountant"]',
+      'nwr["office"="tax_advisor"]',
+    ],
+    real_estate: [
+      'nwr["office"="estate_agent"]',
+      'nwr["office"="property_management"]',
+    ],
+    insurance: [
+      'nwr["office"="insurance"]',
+    ],
+    // Healthcare & Wellness
+    hospitals: [
       'nwr["amenity"="hospital"]',
       'nwr["amenity"="clinic"]',
-      'nwr["amenity"="doctors"]',
     ],
-    finance: [
+    dentists: [
+      'nwr["amenity"="dentist"]',
+    ],
+    veterinary: [
+      'nwr["amenity"="veterinary"]',
+    ],
+    fitness: [
+      'nwr["amenity"="gym"]',
+      'nwr["leisure"="fitness_centre"]',
+    ],
+    spas: [
+      'nwr["shop"="beauty"]',
+      'nwr["leisure"="spa"]',
+    ],
+    // Education
+    schools: [
+      'nwr["amenity"="school"]',
+      'nwr["amenity"="university"]',
+      'nwr["amenity"="college"]',
+    ],
+    libraries: [
+      'nwr["amenity"="library"]',
+    ],
+    training: [
+      'nwr["amenity"="school"]',
+      'nwr["office"="educational_institution"]',
+    ],
+    // Financial Services
+    banks: [
       'nwr["amenity"="bank"]',
       'nwr["amenity"="atm"]',
     ],
+    financial: [
+      'nwr["office"="financial"]',
+      'nwr["office"="accountant"]',
+    ],
+    // Entertainment & Leisure
     entertainment: [
       'nwr["amenity"="cinema"]',
       'nwr["amenity"="theatre"]',
       'nwr["shop"="music"]',
     ],
-  };
-  // Map selected Google types to likely OSM equivalents (best-effort)
-  const googleTypeToOsm: Record<string, string[]> = {
-    // Retail
-    supermarket: ['nwr["shop"="supermarket"]'],
-    grocery_or_supermarket: ['nwr["shop"="supermarket"]', 'nwr["shop"="convenience"]'],
-    clothing_store: ['nwr["shop"="clothes"]'],
-    shoe_store: ['nwr["shop"="shoes"]'],
-    electronics_store: ['nwr["shop"="electronics"]'],
-    computer_store: ['nwr["shop"="computer"]'],
-    furniture_store: ['nwr["shop"="furniture"]'],
-    book_store: ['nwr["shop"="books"]'],
-    pharmacy: ['nwr["amenity"="pharmacy"]'],
-    beauty_salon: ['nwr["shop"="beauty"]', 'nwr["shop"="cosmetics"]', 'nwr["shop"="perfumery"]'],
-    home_goods_store: ['nwr["shop"="houseware"]'],
-    garden_center: ['nwr["shop"="garden_centre"]'],
-    florist: ['nwr["shop"="florist"]'],
-    pet_store: ['nwr["shop"="pet"]'],
-    baby_store: ['nwr["shop"="baby_goods"]'],
-    jewelry_store: ['nwr["shop"="jewelry"]'],
-    hardware_store: ['nwr["shop"="hardware"]', 'nwr["shop"="doityourself"]'],
-    sporting_goods_store: ['nwr["shop"="sports"]'],
-    // Automotive
-    car_dealer: ['nwr["shop"="car"]'],
-    car_repair: ['nwr["amenity"="car_repair"]'],
-    auto_parts_store: ['nwr["shop"="car_parts"]', 'nwr["shop"="tyres"]'],
+    hotels: [
+      'nwr["tourism"="hotel"]',
+      'nwr["tourism"="motel"]',
+    ],
+    tourism: [
+      'nwr["tourism"="information"]',
+      'nwr["tourism"="attraction"]',
+    ],
+    parks: [
+      'nwr["leisure"="park"]',
+      'nwr["leisure"="garden"]',
+    ],
+    // Transportation
+    gas_stations: [
+      'nwr["amenity"="fuel"]',
+    ],
+    parking: [
+      'nwr["amenity"="parking"]',
+    ],
+    transport: [
+      'nwr["amenity"="bus_station"]',
+      'nwr["amenity"="taxi"]',
+    ],
+    // Other Services
+    repair: [
+      'nwr["shop"="repair"]',
+      'nwr["craft"="shoemaker"]',
+      'nwr["craft"="tailor"]',
+    ],
+    cleaning: [
+      'nwr["shop"="dry_cleaning"]',
+      'nwr["shop"="laundry"]',
+    ],
+    construction: [
+      'nwr["office"="construction_company"]',
+      'nwr["craft"="builder"]',
+    ],
+    manufacturing: [
+      'nwr["craft"="yes"]',
+      'nwr["industrial"="yes"]',
+    ],
   };
 
   const base = map[cat] || [];
-  const fromGoogle = (categoryInfo.googleTypes || [])
-    .flatMap((t) => googleTypeToOsm[t] || [])
-    .filter(Boolean);
+  const fromGoogle: string[] = [];
   // Deduplicate
   const set = new Set<string>([...base, ...fromGoogle]);
   return Array.from(set);
@@ -226,14 +310,20 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 }
 
 // Very basic Overpass query with optional category filters - limited to closest 20 stores
+// TEMPORARY GOOGLE PLACES TEST MODE
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export async function findNearbyStores(
   lat: number,
   lon: number,
-  productQuery: string,
-  radiusMeters = 5000,
-  categoryInfo: CategoryInfo | string[] | null = null,
+  _productQuery: string,
+  _radiusMeters = 5000,
+  _categoryInfo: CategoryInfo | string[] | null = null,
   maxResults = 20,
 ): Promise<Place[]> {
+  /* eslint-enable @typescript-eslint/no-unused-vars */
+  // TEMPORARY: Replace OpenStreetMap Overpass search with Google Places API test endpoint.
+  // The original Overpass query is commented out below for reference.
+  /*
   const overpass = "https://overpass-api.de/api/interpreter";
   const requestedCategories = Array.isArray(categoryInfo)
     ? categoryInfo
@@ -251,9 +341,12 @@ export async function findNearbyStores(
   const target = filters.length
     ? filters.map((f) => `${f}(around:${radiusMeters},${lat},${lon});`).join("\n    ")
     : `nwr["shop"](around:${radiusMeters},${lat},${lon});
-    nwr["amenity"~"restaurant|cafe|bank|pharmacy|hospital|school|fuel|parking"](around:${radiusMeters},${lat},${lon});
+    nwr["amenity"~"restaurant|cafe|bank|pharmacy|hospital|school|fuel|parking|cinema|theatre|gym|dentist|veterinary"](around:${radiusMeters},${lat},${lon});
     nwr["office"](around:${radiusMeters},${lat},${lon});
-    nwr["craft"](around:${radiusMeters},${lat},${lon});`;
+    nwr["craft"](around:${radiusMeters},${lat},${lon});
+    nwr["tourism"~"hotel|motel|information|attraction"](around:${radiusMeters},${lat},${lon});
+    nwr["leisure"~"park|garden|spa|fitness_centre"](around:${radiusMeters},${lat},${lon});
+    nwr["industrial"](around:${radiusMeters},${lat},${lon});`;
 
   const query = `[
     out:json
@@ -271,6 +364,48 @@ export async function findNearbyStores(
   if (!res.ok) throw new Error(`Places failed: ${res.status}`);
   const data = await res.json();
   const elements = Array.isArray(data?.elements) ? data.elements : [];
+  */
+
+  type GooglePlaceAddressComponent = {
+    shortText?: string;
+    longText?: string;
+    text?: string;
+  };
+
+  type GooglePlaceDetails = {
+    name?: string;
+    addressComponents?: GooglePlaceAddressComponent[];
+  };
+
+  const googlePlacesTestUrl =
+    "https://places.googleapis.com/v1/places/GyuEmsRBfy61i59si0?fields=addressComponents&key=deni11";
+
+  const res = await fetch(googlePlacesTestUrl, {
+    headers: { Accept: "application/json" },
+  });
+  if (!res.ok) throw new Error(`Google Places request failed: ${res.status}`);
+  const placeData = (await res.json()) as GooglePlaceDetails;
+
+  const addressParts = Array.isArray(placeData.addressComponents)
+    ? placeData.addressComponents.map((component) => {
+        return (
+          component.shortText || component.longText || component.text || ""
+        );
+      })
+    : [];
+
+  const address = addressParts.filter(Boolean).join(", ") || undefined;
+  const elements = [
+    {
+      id: placeData.name || "google-place-test",
+      tags: {
+        name: placeData.name || "Google Places Test",
+        "addr:full": address,
+      },
+      lat: 0,
+      lon: 0,
+    },
+  ];
   
   // Overpass element typings
   type OverpassTags = Record<string, string | undefined>;

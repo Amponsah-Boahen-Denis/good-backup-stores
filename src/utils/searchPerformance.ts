@@ -29,7 +29,7 @@ export class SearchCache<T> {
   }
 
   // Generate cache key from search parameters
-  generateKey(params: any): string {
+  generateKey(params: Record<string, unknown>): string {
     return JSON.stringify(params, Object.keys(params).sort());
   }
 
@@ -184,7 +184,7 @@ export class SearchPerformanceMonitor {
   // Update slow queries list
   private updateSlowQueries(): void {
     this.metrics.slowQueries = Array.from(this.queryStats.entries())
-      .filter(([_, stats]) => stats.count >= 3) // Only include queries with at least 3 searches
+      .filter(([, stats]) => stats.count >= 3) // Only include queries with at least 3 searches
       .map(([query, stats]) => ({ query, avgTime: stats.totalTime / stats.count }))
       .sort((a, b) => b.avgTime - a.avgTime)
       .slice(0, 10);
@@ -252,7 +252,7 @@ export class SearchPerformanceMonitor {
   }
 
   // Export metrics for external analysis
-  exportMetrics(): any {
+  exportMetrics(): Record<string, unknown> {
     return {
       ...this.metrics,
       cacheHitRate: this.getCacheHitRate(),
@@ -263,7 +263,7 @@ export class SearchPerformanceMonitor {
 }
 
 // Global instances
-export const searchCache = new SearchCache<any>(200, 45 * 60 * 1000); // 45 minutes TTL
+export const searchCache = new SearchCache<unknown>(200, 45 * 60 * 1000); // 45 minutes TTL
 export const searchPerformanceMonitor = new SearchPerformanceMonitor();
 
 // Periodic cache cleanup

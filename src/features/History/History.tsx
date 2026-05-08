@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { clearHistory, listHistory, SearchHistoryItem, getHistoryAnalytics, HistoryAnalytics } from "@/services/history";
 import { listStores } from "@/services/userStores";
 import Button from "@/components/Button";
@@ -20,7 +21,7 @@ function StatCard({ title, value, subtitle, icon }: { title: string; value: stri
   );
 }
 
-function SearchHistoryCard({ item }: { item: SearchHistoryItem }) {
+function SearchHistoryCard({ item, onClick }: { item: SearchHistoryItem; onClick: () => void }) {
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
     const now = new Date();
@@ -37,7 +38,11 @@ function SearchHistoryCard({ item }: { item: SearchHistoryItem }) {
   };
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:border-slate-300">
+    <button
+      type="button"
+      onClick={onClick}
+      className="text-left rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:border-slate-300"
+    >
       <div className="flex items-start justify-between">
         <div className="flex-1 space-y-2">
           <div className="flex items-center gap-2">
@@ -72,6 +77,7 @@ function SearchHistoryCard({ item }: { item: SearchHistoryItem }) {
 }
 
 export default function History() {
+  const router = useRouter();
   const [history, setHistory] = useState<SearchHistoryItem[]>([]);
   const [storesCount, setStoresCount] = useState<number>(0);
   const [analytics, setAnalytics] = useState<HistoryAnalytics | null>(null);
@@ -180,7 +186,17 @@ export default function History() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {history.map((item) => (
-              <SearchHistoryCard key={item.id} item={item} />
+              <SearchHistoryCard
+                key={item.id}
+                item={item}
+                onClick={() => {
+                  const params = new URLSearchParams();
+                  params.set("product", item.product);
+                  if (item.country) params.set("country", item.country);
+                  if (item.location) params.set("location", item.location);
+                  router.push(`/Search?${params.toString()}`);
+                }}
+              />
             ))}
           </div>
         )}
@@ -191,7 +207,7 @@ export default function History() {
         <section className="space-y-6">
           <div>
             <h2 className="text-2xl font-bold text-slate-900">Your Search Insights</h2>
-            <p className="text-slate-600 mt-1">What you've been looking for most</p>
+            <p className="text-slate-600 mt-1">What you&apos;ve been looking for most</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

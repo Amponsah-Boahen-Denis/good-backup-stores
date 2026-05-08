@@ -274,6 +274,10 @@ export function buildUserProfile(searchHistory: Array<{ query: string; timestamp
 export function generatePersonalizedSuggestions(userProfile: UserProfile, currentQuery: string = ''): string[] {
   const suggestions: string[] = [];
 
+  if (currentQuery.trim()) {
+    suggestions.push(`search for ${currentQuery}`);
+  }
+
   // Category-based suggestions
   if (userProfile.preferences.preferredCategories.length > 0) {
     const topCategory = userProfile.preferences.preferredCategories[0];
@@ -303,10 +307,12 @@ export function generatePersonalizedSuggestions(userProfile: UserProfile, curren
 }
 
 // Apply personalization to search results
+export type PersonalizationResult = { relevanceScore: number; category?: string; [key: string]: unknown };
+
 export function personalizeSearchResults(
-  results: Array<any & { relevanceScore: number; category?: string }>,
+  results: Array<PersonalizationResult>,
   userProfile: UserProfile
-): Array<any & { relevanceScore: number }> {
+): Array<PersonalizationResult> {
   return results.map(result => {
     let personalizedScore = result.relevanceScore;
 

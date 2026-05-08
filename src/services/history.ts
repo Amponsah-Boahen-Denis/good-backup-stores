@@ -1,7 +1,5 @@
-// History service with hybrid storage strategy:
-// - MongoDB: Shared data, cross-device sync, persistent
+// History service using localStorage for browser-based storage
 // - localStorage: User-specific data, fast access, device-local
-// Priority: MongoDB first, localStorage fallback
 
 export type SearchHistoryItem = {
   id: string;
@@ -17,18 +15,8 @@ import { safeGet, safeParse, safeWriteJSON, safeRemove } from "@/services/storag
 
 export async function listHistory(): Promise<SearchHistoryItem[]> {
   if (typeof window === "undefined") return [];
-  // Try MongoDB first for shared/cross-device history
-  try {
-    const res = await fetch("/api/history");
-    if (res.ok) {
-      const json = (await res.json()) as SearchHistoryItem[];
-      return json;
-    }
-  } catch {
-    // Fall back to localStorage for this user
-  }
 
-  // Local storage fallback for user-specific history
+  // Use localStorage for user-specific history
   const raw = safeGet(STORAGE_KEY);
   return safeParse<SearchHistoryItem[]>(raw, []);
 }
@@ -37,21 +25,7 @@ export async function addHistory(item: Omit<SearchHistoryItem, "id" | "createdAt
   if (typeof window === "undefined") throw new Error("Unavailable on server");
   const entry: SearchHistoryItem = { ...item, id: crypto.randomUUID(), createdAt: Date.now() };
 
-  // Try MongoDB first
-  try {
-    const res = await fetch("/api/history", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(item),
-    });
-    if (res.ok) {
-      return (await res.json()) as SearchHistoryItem;
-    }
-  } catch {
-    // Fall back to localStorage
-  }
-
-  // Local storage fallback
+  // Use localStorage for user-specific history
   const items = await listHistory();
   items.unshift(entry);
   const trimmed = items.slice(0, 50);
@@ -62,15 +36,7 @@ export async function addHistory(item: Omit<SearchHistoryItem, "id" | "createdAt
 export async function clearHistory(): Promise<void> {
   if (typeof window === "undefined") return;
 
-  // Try MongoDB first
-  try {
-    const res = await fetch("/api/history", { method: "DELETE" });
-    if (res.ok) return;
-  } catch {
-    // Fall back to localStorage
-  }
-
-  // Local storage fallback
+  // Use localStorage for user-specific history
   safeRemove(STORAGE_KEY);
 }
 

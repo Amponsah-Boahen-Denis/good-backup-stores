@@ -4,6 +4,7 @@ type Props = {
   value: string;
   onChange: (value: string) => void;
   id?: string;
+  label?: string;
 };
 
 const COUNTRIES = [
@@ -33,16 +34,16 @@ const COUNTRIES = [
   "Zambia","Zimbabwe"
 ];
 
-export default function CountryInput({ value, onChange, id }: Props) {
+export default function CountryInput({ value, onChange, id, label = "Country" }: Props) {
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-medium">Country</label>
+      <label htmlFor={id} className="text-sm font-medium text-gray-900">{label}</label>
       <select
         id={id}
         aria-label="Select country"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 rounded-md border border-black/10 dark:border-white/15 bg-white px-3 text-sm text-black"
+        className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-500 transition-all duration-200 ease-out focus:border-[#0A66C2] focus:outline-none focus:ring-2 focus:ring-[#E7F0F7]"
       >
         <option value="">Select a country</option>
         {COUNTRIES.map((c) => (

@@ -3,13 +3,11 @@
 import { useEffect, useState } from "react";
 import StoreForm from "@/components/StoreForm";
 import StoreList from "@/components/StoreList";
-import LogoUpload from "@/components/LogoUpload";
 import ProfileForm from "@/components/ProfileForm";
 import BusinessAnalytics from "@/components/BusinessAnalytics";
 import StoreSearchWidget from "@/components/StoreSearchWidget";
 import { deleteStore, listStores, saveStore, StoreSubmission } from "@/services/userStores";
 import { canAddStore, recordStoreAdded } from "@/services/userPlans";
-import PlanStatus from "@/components/PlanStatus";
 import PlanLimitAlert from "@/components/PlanLimitAlert";
 import { usePreferences } from "@/hooks/usePreferences";
 import { updateUserPreferences } from "@/services/preferences";
@@ -24,7 +22,6 @@ export default function Profile() {
   const [stores, setStores] = useState<StoreSubmission[]>([]);
   const [editing, setEditing] = useState<StoreSubmission | null>(null);
   const [storeLimitError, setStoreLimitError] = useState<string | null>(null);
-  const [profileLogo, setProfileLogo] = useState<string | null>(prefs.logo || null);
 
   useEffect(() => {
     listStores().then(setStores);
@@ -51,11 +48,6 @@ export default function Profile() {
     if (!editing) {
       recordStoreAdded();
     }
-  };
-
-  const handleLogoUpload = async (url: string) => {
-    setProfileLogo(url);
-    await updateUserPreferences({ logo: url });
   };
 
   const handleProfileSave = async (data: Record<string, string>) => {
@@ -92,7 +84,6 @@ export default function Profile() {
             </Button>
           )}
         </div>
-        <LogoUpload onUpload={handleLogoUpload} currentLogo={profileLogo} label="Profile Logo" userId="user_profile" />
       </header>
 
       {/* Profile Edit Form */}
@@ -107,11 +98,6 @@ export default function Profile() {
           />
         </section>
       )}
-
-      {/* Plan Status */}
-      <section>
-        <PlanStatus />
-      </section>
 
       {/* Business Analytics */}
       <section>

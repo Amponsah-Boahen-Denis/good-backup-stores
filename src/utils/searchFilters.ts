@@ -29,6 +29,15 @@ export type PlaceWithMetadata = Place & {
   openingHours?: string;
 };
 
+export type SearchResultWithMetadata = SearchResult & {
+  distance?: number;
+  rating?: number;
+  priceLevel?: number;
+  features?: string[];
+  category?: string;
+  isOpen?: boolean;
+};
+
 // Calculate distance between two coordinates using Haversine formula
 export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371e3; // Earth's radius in meters
@@ -84,7 +93,7 @@ export function applyFilters(
   // Distance-based filtering (only for PlaceWithMetadata)
   if (filters.maxDistance !== undefined && userLocation) {
     filtered = filtered.filter(place => {
-      const placeAsMetadata = place as any;
+      const placeAsMetadata = place as SearchResultWithMetadata;
       if (!placeAsMetadata.distance) {
         // Calculate distance if not already calculated
         placeAsMetadata.distance = calculateDistance(
@@ -99,13 +108,13 @@ export function applyFilters(
   // Rating filters (only for PlaceWithMetadata)
   if (filters.minRating !== undefined) {
     filtered = filtered.filter(place => {
-      const placeAsMetadata = place as any;
+      const placeAsMetadata = place as SearchResultWithMetadata;
       return !placeAsMetadata.rating || placeAsMetadata.rating >= filters.minRating!;
     });
   }
   if (filters.maxRating !== undefined) {
     filtered = filtered.filter(place => {
-      const placeAsMetadata = place as any;
+      const placeAsMetadata = place as SearchResultWithMetadata;
       return !placeAsMetadata.rating || placeAsMetadata.rating <= filters.maxRating!;
     });
   }
@@ -120,7 +129,7 @@ export function applyFilters(
     };
     const allowedLevels = priceLevelMap[filters.priceRange];
     filtered = filtered.filter(place => {
-      const placeAsMetadata = place as any;
+      const placeAsMetadata = place as SearchResultWithMetadata;
       return !placeAsMetadata.priceLevel || allowedLevels.includes(placeAsMetadata.priceLevel);
     });
   }
@@ -128,19 +137,19 @@ export function applyFilters(
   // Feature filters (only for PlaceWithMetadata)
   if (filters.hasWiFi !== undefined) {
     filtered = filtered.filter(place => {
-      const placeAsMetadata = place as any;
+      const placeAsMetadata = place as SearchResultWithMetadata;
       return (placeAsMetadata.features?.includes('wifi') ?? false) === filters.hasWiFi;
     });
   }
   if (filters.hasParking !== undefined) {
     filtered = filtered.filter(place => {
-      const placeAsMetadata = place as any;
+      const placeAsMetadata = place as SearchResultWithMetadata;
       return (placeAsMetadata.features?.includes('parking') ?? false) === filters.hasParking;
     });
   }
   if (filters.hasDelivery !== undefined) {
     filtered = filtered.filter(place => {
-      const placeAsMetadata = place as any;
+      const placeAsMetadata = place as SearchResultWithMetadata;
       return (placeAsMetadata.features?.includes('delivery') ?? false) === filters.hasDelivery;
     });
   }
@@ -148,7 +157,7 @@ export function applyFilters(
   // Open hours filtering (only for PlaceWithMetadata)
   if (filters.isOpenNow) {
     filtered = filtered.filter(place => {
-      const placeAsMetadata = place as any;
+      const placeAsMetadata = place as SearchResultWithMetadata;
       return placeAsMetadata.isOpen !== false;
     });
   }
@@ -156,7 +165,7 @@ export function applyFilters(
   // Category filtering (only for PlaceWithMetadata)
   if (filters.category) {
     filtered = filtered.filter(place => {
-      const placeAsMetadata = place as any;
+      const placeAsMetadata = place as SearchResultWithMetadata;
       return !placeAsMetadata.category || placeAsMetadata.category?.toLowerCase().includes(filters.category!.toLowerCase());
     });
   }
@@ -164,7 +173,7 @@ export function applyFilters(
   // Additional features filtering (only for PlaceWithMetadata)
   if (filters.features && filters.features.length > 0) {
     filtered = filtered.filter(place => {
-      const placeAsMetadata = place as any;
+      const placeAsMetadata = place as SearchResultWithMetadata;
       return filters.features!.every(feature =>
         placeAsMetadata.features?.includes(feature)
       );
@@ -196,14 +205,14 @@ export function applyFilters(
       case "name":
         return a.name.localeCompare(b.name);
       case "distance":
-        const aMetadata = a as any;
-        const bMetadata = b as any;
+        const aMetadata = a as SearchResultWithMetadata;
+        const bMetadata = b as SearchResultWithMetadata;
         const aDist = aMetadata.distance || Infinity;
         const bDist = bMetadata.distance || Infinity;
         return aDist - bDist;
       case "rating":
-        const aRating = (a as any).rating || 0;
-        const bRating = (b as any).rating || 0;
+        const aRating = (a as SearchResultWithMetadata).rating || 0;
+        const bRating = (b as SearchResultWithMetadata).rating || 0;
         return bRating - aRating;
       case "relevance":
       default:

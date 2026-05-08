@@ -57,15 +57,15 @@ export default function ProfileForm({ initial, onSubmit, onCancel, isLoading = f
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-black/5 dark:bg-white/5 p-6 rounded-lg">
+    <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-lg border border-gray-200">
       {error && (
-        <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 p-3 rounded">
+        <div className="text-sm text-red-600 bg-red-50 p-3 rounded border border-red-200">
           {error}
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-black dark:text-white mb-1">
+        <label className="block text-sm font-medium text-gray-900 mb-1">
           Name *
         </label>
         <input
@@ -73,13 +73,13 @@ export default function ProfileForm({ initial, onSubmit, onCancel, isLoading = f
           value={data.name}
           onChange={(e) => handleChange("name", e.target.value)}
           placeholder="Your name"
-          className="w-full px-3 py-2 border border-black/10 dark:border-white/15 rounded-md bg-white dark:bg-black text-black dark:text-white text-sm placeholder:text-black/50 placeholder:dark:text-white/50"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 text-sm placeholder:text-gray-500 transition-all duration-200 ease-out focus:border-[#0A66C2] focus:outline-none focus:ring-2 focus:ring-[#E7F0F7] hover:border-gray-400"
           disabled={isLoading}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-black dark:text-white mb-1">
+        <label className="block text-sm font-medium text-gray-900 mb-1">
           Email *
         </label>
         <input
@@ -87,13 +87,13 @@ export default function ProfileForm({ initial, onSubmit, onCancel, isLoading = f
           value={data.email}
           onChange={(e) => handleChange("email", e.target.value)}
           placeholder="your@email.com"
-          className="w-full px-3 py-2 border border-black/10 dark:border-white/15 rounded-md bg-white dark:bg-black text-black dark:text-white text-sm placeholder:text-black/50 placeholder:dark:text-white/50"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 text-sm placeholder:text-gray-500 transition-all duration-200 ease-out focus:border-[#0A66C2] focus:outline-none focus:ring-2 focus:ring-[#E7F0F7] hover:border-gray-400"
           disabled={isLoading}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-black dark:text-white mb-1">
+        <label className="block text-sm font-medium text-gray-900 mb-1">
           Phone
         </label>
         <input
@@ -101,13 +101,13 @@ export default function ProfileForm({ initial, onSubmit, onCancel, isLoading = f
           value={data.phone}
           onChange={(e) => handleChange("phone", e.target.value)}
           placeholder="+1 (555) 000-0000"
-          className="w-full px-3 py-2 border border-black/10 dark:border-white/15 rounded-md bg-white dark:bg-black text-black dark:text-white text-sm placeholder:text-black/50 placeholder:dark:text-white/50"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 text-sm placeholder:text-gray-500 transition-all duration-200 ease-out focus:border-[#0A66C2] focus:outline-none focus:ring-2 focus:ring-[#E7F0F7] hover:border-gray-400"
           disabled={isLoading}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-black dark:text-white mb-1">
+        <label className="block text-sm font-medium text-gray-900 mb-1">
           Bio
         </label>
         <textarea
@@ -115,14 +115,14 @@ export default function ProfileForm({ initial, onSubmit, onCancel, isLoading = f
           onChange={(e) => handleChange("bio", e.target.value)}
           placeholder="Tell us about yourself or your business"
           rows={3}
-          className="w-full px-3 py-2 border border-black/10 dark:border-white/15 rounded-md bg-white dark:bg-black text-black dark:text-white text-sm placeholder:text-black/50 placeholder:dark:text-white/50 resize-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 text-sm placeholder:text-gray-500 transition-all duration-200 ease-out focus:border-[#0A66C2] focus:outline-none focus:ring-2 focus:ring-[#E7F0F7] hover:border-gray-400 resize-none"
           disabled={isLoading}
         />
-        <p className="text-xs text-black/60 dark:text-white/60 mt-1">Max 500 characters</p>
+        <p className="text-xs text-gray-600 mt-1">Max 500 characters</p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-black dark:text-white mb-1">
+        <label className="block text-sm font-medium text-gray-900 mb-1">
           Website
         </label>
         <input
@@ -130,7 +130,7 @@ export default function ProfileForm({ initial, onSubmit, onCancel, isLoading = f
           value={data.website}
           onChange={(e) => handleChange("website", e.target.value)}
           placeholder="https://yourwebsite.com"
-          className="w-full px-3 py-2 border border-black/10 dark:border-white/15 rounded-md bg-white dark:bg-black text-black dark:text-white text-sm placeholder:text-black/50 placeholder:dark:text-white/50"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 text-sm placeholder:text-gray-500 transition-all duration-200 ease-out focus:border-[#0A66C2] focus:outline-none focus:ring-2 focus:ring-[#E7F0F7] hover:border-gray-400"
           disabled={isLoading}
         />
       </div>
@@ -140,7 +140,7 @@ export default function ProfileForm({ initial, onSubmit, onCancel, isLoading = f
           type="button"
           onClick={onCancel}
           disabled={isLoading}
-          className="px-4 py-2 text-sm border border-black/10 dark:border-white/15 rounded-md hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700"
         >
           Cancel
         </button>

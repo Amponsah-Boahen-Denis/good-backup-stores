@@ -2,28 +2,28 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AppUser, UserStatus } from "@/types/user";
-import { listUsers, setUserStatus, stats, setUserPlan, deleteUser } from "@/services/adminUsers";
+import { listUsers, setUserStatus, stats } from "@/services/adminUsers";
 import { getHistoryAnalytics, HistoryAnalytics } from "@/services/history";
-import { getSystemSettings, updateSystemSettings, clearAllCaches, resetAllAnalytics, exportAllData, importData, SystemSettings } from "@/services/adminSystem";
+import { clearAllCaches, resetAllAnalytics, exportAllData, importData } from "@/services/adminSystem";
 import { getPendingStores, approveStore, rejectStore, getModerationStats, ModeratedStore } from "@/services/adminModeration";
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-[1.5rem] border border-slate-200 bg-white/90 dark:border-slate-700 dark:bg-slate-900/80 p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5">
-      <p className="text-[11px] uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">
+    <div className="rounded-[1.5rem] border border-[#0A66C2]/20 bg-[#E7F0F7]/50 p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5">
+      <p className="text-[11px] uppercase tracking-[0.25em] text-[#0A66C2]/70">
         {label}
       </p>
-      <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-white">{value}</p>
+      <p className="mt-3 text-3xl font-semibold text-[#0A66C2]">{value}</p>
     </div>
   );
 }
 
 function StatusBadge({ status }: { status: UserStatus }) {
-  const color = status === "active" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
-    : status === "blocked" ? "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300"
-    : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300";
+  const color = status === "active" ? "bg-[#0A66C2]/10 text-[#0A66C2] border-[#0A66C2]/20"
+    : status === "blocked" ? "bg-red-100 text-red-700 border-red-200"
+    : "bg-amber-100 text-amber-700 border-amber-200";
   const label = status === "on_hold" ? "On hold" : status.charAt(0).toUpperCase() + status.slice(1);
-  return <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium tracking-wide transition ${color}`}>
+  return <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium tracking-wide transition border ${color}`}>
     {label}
   </span>;
 }
@@ -34,7 +34,6 @@ export default function Admin() {
   const [error, setError] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<{ total: number; blocked: number; onHold: number; active: number; registeredToday: number } | null>(null);
   const [analytics, setAnalytics] = useState<HistoryAnalytics | null>(null);
-  const [systemSettings, setSystemSettings] = useState<SystemSettings | null>(null);
   const [pendingStores, setPendingStores] = useState<ModeratedStore[]>([]);
   const [moderationStats, setModerationStats] = useState<{ pending: number; approved: number; rejected: number; total: number } | null>(null);
 
@@ -42,18 +41,16 @@ export default function Admin() {
     setLoading(true);
     setError(null);
     try {
-      const [u, m, a, settings, pending, modStats] = await Promise.all([
+      const [u, m, a, pending, modStats] = await Promise.all([
         listUsers(),
         stats(),
         getHistoryAnalytics(),
-        Promise.resolve(getSystemSettings()),
         getPendingStores(),
         Promise.resolve(getModerationStats()),
       ]);
       setUsers(u);
       setMetrics(m);
       setAnalytics(a);
-      setSystemSettings(settings);
       setPendingStores(pending);
       setModerationStats(modStats);
     } catch {
@@ -66,12 +63,7 @@ export default function Admin() {
   useEffect(() => { refresh(); }, []);
 
   const actions = useMemo(() => ({
-    block: async (id: string) => { await setUserStatus(id, "blocked"); await refresh(); },
-    hold: async (id: string) => { await setUserStatus(id, "on_hold"); await refresh(); },
     activate: async (id: string) => { await setUserStatus(id, "active"); await refresh(); },
-    setPlan: async (id: string, plan: "starter" | "pro" | "business") => { await setUserPlan(id, plan); await refresh(); },
-    delete: async (id: string) => { if (confirm("Are you sure you want to delete this user?")) { await deleteUser(id); await refresh(); } },
-    updateSettings: (updates: Partial<SystemSettings>) => { updateSystemSettings(updates); setSystemSettings(getSystemSettings()); },
     clearCaches: async () => { if (confirm("Clear all caches? This will reset search performance.")) { await clearAllCaches(); await refresh(); } },
     resetAnalytics: async () => { if (confirm("Reset all analytics? This cannot be undone.")) { await resetAllAnalytics(); await refresh(); } },
     exportData: async () => {
@@ -95,17 +87,17 @@ export default function Admin() {
   }), []);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10 space-y-8 bg-slate-50 dark:bg-slate-950">
+    <main className="mx-auto max-w-6xl px-4 py-10 space-y-8 bg-[#E7F0F7]">
       <header className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Admin Dashboard</h1>
-        <p className="text-sm text-black/60 dark:text-white/60">Owner-only controls. Frontend-only demo; will connect to API later.</p>
+        <h1 className="text-2xl font-semibold tracking-tight text-[#0A66C2]">Admin Dashboard</h1>
+        <p className="text-sm text-[#0A66C2]/70">Owner-only controls. Frontend-only demo; will connect to API later.</p>
       </header>
 
       {error && (
-        <div className="rounded-md border border-rose-200 bg-rose-50 text-rose-800 px-3 py-2 text-sm">{error}</div>
+        <div className="rounded-md border border-red-200 bg-red-50 text-red-800 px-3 py-2 text-sm">{error}</div>
       )}
 
-      <section className="rounded-[1.5rem] bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+      <section className="rounded-[1.5rem] bg-white border border-[#0A66C2]/10 p-6 shadow-sm">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           <Stat label="Total users" value={metrics?.total ?? 0} />
           <Stat label="Active" value={metrics?.active ?? 0} />
@@ -115,35 +107,35 @@ export default function Admin() {
         </div>
       </section>
 
-      <section className="space-y-3 rounded-[1.5rem] bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+      <section className="space-y-3 rounded-[1.5rem] bg-white border border-[#0A66C2]/10 p-6 shadow-sm">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">Search analytics</h2>
-          <span className="text-sm text-slate-500 dark:text-slate-400">Realtime overview</span>
+          <h2 className="text-lg font-semibold text-[#0A66C2]">Search analytics</h2>
+          <span className="text-sm text-[#0A66C2]/70">Realtime overview</span>
         </div>
         {!analytics ? (
-          <p className="text-sm text-black/60 dark:text-white/60">Loading analytics...</p>
+          <p className="text-sm text-[#0A66C2]/70">Loading analytics...</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
             <Stat label="Total searches" value={analytics.totalSearches} />
             <Stat label="Searches today" value={analytics.searchesToday} />
             <Stat label="Unique products" value={analytics.uniqueProducts} />
-            <div className="col-span-2 lg:col-span-3 rounded-lg border border-black/10 dark:border-white/15 p-4">
-              <p className="text-xs text-black/60 dark:text-white/60 mb-2">Top products</p>
+            <div className="rounded-lg border border-[#0A66C2]/20 p-4 bg-[#E7F0F7]/30">
+              <p className="text-xs text-[#0A66C2]/70 mb-2">Top products</p>
               <ul className="text-sm space-y-1">
                 {analytics.topProducts.length === 0 ? (
-                  <li className="text-black/60 dark:text-white/60">No data</li>
+                  <li className="text-[#0A66C2]/70">No data</li>
                 ) : analytics.topProducts.map((t) => (
-                  <li key={t.name} className="flex justify-between"><span>{t.name}</span><span className="text-black/60 dark:text-white/60">{t.count}</span></li>
+                  <li key={t.name} className="flex justify-between"><span className="text-[#0A66C2]">{t.name}</span><span className="text-[#0A66C2]/70">{t.count}</span></li>
                 ))}
               </ul>
             </div>
-            <div className="col-span-2 lg:col-span-3 rounded-lg border border-black/10 dark:border-white/15 p-4">
-              <p className="text-xs text-black/60 dark:text-white/60 mb-2">Top countries</p>
+            <div className="rounded-lg border border-[#0A66C2]/20 p-4 bg-[#E7F0F7]/30">
+              <p className="text-xs text-[#0A66C2]/70 mb-2">Top countries</p>
               <ul className="text-sm space-y-1">
                 {analytics.topCountries.length === 0 ? (
-                  <li className="text-black/60 dark:text-white/60">No data</li>
+                  <li className="text-[#0A66C2]/70">No data</li>
                 ) : analytics.topCountries.map((t) => (
-                  <li key={t.name} className="flex justify-between"><span>{t.name}</span><span className="text-black/60 dark:text-white/60">{t.count}</span></li>
+                  <li key={t.name} className="flex justify-between"><span className="text-[#0A66C2]">{t.name}</span><span className="text-[#0A66C2]/70">{t.count}</span></li>
                 ))}
               </ul>
             </div>
@@ -151,69 +143,11 @@ export default function Admin() {
         )}
       </section>
 
-      <section className="space-y-3 rounded-[1.5rem] bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">System Settings</h2>
-          <span className="text-sm text-slate-500 dark:text-slate-400">Quick toggles</span>
-        </div>
-        {systemSettings && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-950/80 p-4 space-y-3 shadow-sm">
-              <h3 className="font-medium">General Settings</h3>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={systemSettings.maintenanceMode}
-                  onChange={(e) => actions.updateSettings({ maintenanceMode: e.target.checked })}
-                />
-                Maintenance Mode
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={systemSettings.allowStoreSubmissions}
-                  onChange={(e) => actions.updateSettings({ allowStoreSubmissions: e.target.checked })}
-                />
-                Allow Store Submissions
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={systemSettings.requireApproval}
-                  onChange={(e) => actions.updateSettings({ requireApproval: e.target.checked })}
-                />
-                Require Approval for New Stores
-              </label>
-            </div>
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-950/80 p-4 space-y-3 shadow-sm">
-              <h3 className="font-medium">Limits & Performance</h3>
-              <label className="block">
-                Max Search Results:
-                <input
-                  type="number"
-                  value={systemSettings.maxSearchResults}
-                  onChange={(e) => actions.updateSettings({ maxSearchResults: parseInt(e.target.value) || 50 })}
-                  className="ml-2 px-2 py-1 border rounded w-20"
-                />
-              </label>
-              <label className="block">
-                Cache Expiry (hours):
-                <input
-                  type="number"
-                  value={systemSettings.cacheExpiryHours}
-                  onChange={(e) => actions.updateSettings({ cacheExpiryHours: parseInt(e.target.value) || 24 })}
-                  className="ml-2 px-2 py-1 border rounded w-20"
-                />
-              </label>
-            </div>
-          </div>
-        )}
-      </section>
 
-      <section className="space-y-3 rounded-[1.5rem] bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+      <section className="space-y-3 rounded-[1.5rem] bg-white border border-[#0A66C2]/10 p-6 shadow-sm">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">Store Moderation</h2>
-          <span className="text-sm text-slate-500 dark:text-slate-400">Review queue</span>
+          <h2 className="text-lg font-semibold text-[#0A66C2]">Store Moderation</h2>
+          <span className="text-sm text-[#0A66C2]/70">Review queue</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
           <Stat label="Pending" value={moderationStats?.pending ?? 0} />
@@ -223,21 +157,21 @@ export default function Admin() {
         </div>
         {pendingStores.length > 0 && (
           <div className="space-y-3">
-            <h3 className="font-medium">Pending Approval</h3>
+            <h3 className="font-medium text-[#0A66C2]">Pending Approval</h3>
             <div className="space-y-4">
               {pendingStores.map((store) => (
-                <div key={store.id} className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-950/80 p-4 shadow-sm transition hover:-translate-y-0.5">
+                <div key={store.id} className="rounded-2xl border border-[#0A66C2]/20 bg-[#E7F0F7]/50 p-4 shadow-sm transition hover:-translate-y-0.5">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <h4 className="font-medium">{store.name}</h4>
-                      <p className="text-sm text-black/60 dark:text-white/60">{store.address}</p>
-                      <p className="text-sm text-black/60 dark:text-white/60">{store.country}</p>
-                      {store.website && <p className="text-sm text-blue-600 dark:text-blue-400">{store.website}</p>}
+                      <h4 className="font-medium text-[#0A66C2]">{store.name}</h4>
+                      <p className="text-sm text-[#0A66C2]/70">{store.address}</p>
+                      <p className="text-sm text-[#0A66C2]/70">{store.country}</p>
+                      {store.website && <p className="text-sm text-[#0A66C2]">{store.website}</p>}
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={() => actions.approveStore(store.id)}
-                        className="px-3 py-1 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 transition text-sm"
+                        className="px-3 py-1 rounded-full bg-[#0A66C2] text-white hover:bg-[#0A66C2]/90 transition text-sm"
                       >
                         Approve
                       </button>
@@ -246,7 +180,7 @@ export default function Admin() {
                           const reason = prompt("Rejection reason:");
                           if (reason) actions.rejectStore(store.id, reason);
                         }}
-                        className="px-3 py-1 rounded-full bg-rose-600 text-white hover:bg-rose-700 transition text-sm"
+                        className="px-3 py-1 rounded-full bg-red-600 text-white hover:bg-red-700 transition text-sm"
                       >
                         Reject
                       </button>
@@ -259,59 +193,40 @@ export default function Admin() {
         )}
       </section>
 
-      <section className="space-y-3 rounded-[1.5rem] bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+      <section className="space-y-3 rounded-[1.5rem] bg-white border border-[#0A66C2]/10 p-6 shadow-sm">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">Users</h2>
-          <span className="text-sm text-slate-500 dark:text-slate-400">User management</span>
+          <h2 className="text-lg font-semibold text-[#0A66C2]">Users</h2>
+          <span className="text-sm text-[#0A66C2]/70">User management</span>
         </div>
         {loading ? (
-          <p className="text-sm text-black/60 dark:text-white/60">Loading...</p>
+          <p className="text-sm text-[#0A66C2]/70">Loading...</p>
         ) : users.length === 0 ? (
-          <p className="text-sm text-black/60 dark:text-white/60">No users found.</p>
+          <p className="text-sm text-[#0A66C2]/70">No users found.</p>
         ) : (
-          <div className="overflow-x-auto rounded-[1.5rem] border border-slate-200 dark:border-slate-700 bg-white/95 shadow-sm">
-            <table className="min-w-full text-sm divide-y divide-slate-200 dark:divide-slate-700">
-              <thead className="bg-slate-50 dark:bg-slate-950">
-                <tr className="border-b border-slate-200 dark:border-slate-700 text-left">
-                  <th className="py-2 pr-4">Name</th>
-                  <th className="py-2 pr-4">Email</th>
-                  <th className="py-2 pr-4">Plan</th>
-                  <th className="py-2 pr-4">Status</th>
-                  <th className="py-2 pr-4">Created</th>
-                  <th className="py-2 pr-4">Updated</th>
-                  <th className="py-2 pr-4">Actions</th>
+          <div className="overflow-x-auto rounded-[1.5rem] border border-[#0A66C2]/10 bg-white shadow-sm">
+            <table className="min-w-full text-sm divide-y divide-[#0A66C2]/10">
+              <thead className="bg-[#E7F0F7]/50">
+                <tr className="border-b border-[#0A66C2]/10 text-left">
+                  <th className="py-2 pr-4 text-[#0A66C2]">Name</th>
+                  <th className="py-2 pr-4 text-[#0A66C2]">Email</th>
+                  <th className="py-2 pr-4 text-[#0A66C2]">Status</th>
+                  <th className="py-2 pr-4 text-[#0A66C2]">Created</th>
+                  <th className="py-2 pr-4 text-[#0A66C2]">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((u) => (
-                  <tr key={u.id} className="border-b border-black/5 dark:border-white/10">
-                    <td className="py-3 pr-4 whitespace-nowrap text-slate-900 dark:text-white">{u.name}</td>
-                    <td className="py-3 pr-4 whitespace-nowrap text-slate-600 dark:text-slate-400">{u.email}</td>
-                    <td className="py-2 pr-4 whitespace-nowrap">
-                      <select
-                        value={u.planType || "starter"}
-                        onChange={(e) => actions.setPlan(u.id, e.target.value as "starter" | "pro" | "business")}
-                        className="px-3 py-2 border border-slate-200 bg-slate-50 text-sm rounded-xl transition focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-300"
-                      >
-                        <option value="starter">Starter</option>
-                        <option value="pro">Pro</option>
-                        <option value="business">Business</option>
-                      </select>
-                    </td>
+                  <tr key={u.id} className="border-b border-[#0A66C2]/5">
+                    <td className="py-3 pr-4 whitespace-nowrap text-[#0A66C2]">{u.name}</td>
+                    <td className="py-3 pr-4 whitespace-nowrap text-[#0A66C2]/70">{u.email}</td>
                     <td className="py-2 pr-4 whitespace-nowrap"><StatusBadge status={u.status} /></td>
-                    <td className="py-2 pr-4 whitespace-nowrap">{new Date(u.createdAt).toLocaleString()}</td>
-                    <td className="py-2 pr-4 whitespace-nowrap">{new Date(u.updatedAt).toLocaleString()}</td>
+                    <td className="py-2 pr-4 whitespace-nowrap text-[#0A66C2]/70">{new Date(u.createdAt).toLocaleString()}</td>
                     <td className="py-2 pr-4 whitespace-nowrap flex gap-2 flex-wrap">
-                      {u.status !== "blocked" && (
-                        <button onClick={() => actions.block(u.id)} className="px-3 py-1 rounded-full bg-rose-600 text-white hover:bg-rose-700 transition text-xs">Block</button>
-                      )}
-                      {u.status !== "on_hold" && (
-                        <button onClick={() => actions.hold(u.id)} className="px-3 py-1 rounded-full bg-amber-500 text-white hover:bg-amber-600 transition text-xs">Hold</button>
-                      )}
                       {u.status !== "active" && (
-                        <button onClick={() => actions.activate(u.id)} className="px-3 py-1 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 transition text-xs">Activate</button>
+                        <button onClick={() => actions.activate(u.id)} className="px-3 py-1 rounded-full bg-[#0A66C2] text-white hover:bg-[#0A66C2]/90 transition text-xs">
+                          {u.status === "on_hold" ? "Approve" : "Activate"}
+                        </button>
                       )}
-                      <button onClick={() => actions.delete(u.id)} className="px-3 py-1 rounded-full bg-red-600 text-white hover:bg-red-700 transition text-xs">Delete</button>
                     </td>
                   </tr>
                 ))}
@@ -321,18 +236,18 @@ export default function Admin() {
         )}
       </section>
 
-      <section className="space-y-3 rounded-[1.5rem] bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+      <section className="space-y-3 rounded-[1.5rem] bg-white border border-[#0A66C2]/10 p-6 shadow-sm">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">Data Management</h2>
-          <span className="text-sm text-slate-500 dark:text-slate-400">Backup and maintenance</span>
+          <h2 className="text-lg font-semibold text-[#0A66C2]">Data Management</h2>
+          <span className="text-sm text-[#0A66C2]/70">Backup and maintenance</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-950/80 p-4 space-y-3 shadow-sm">
-            <h3 className="font-medium">System Controls</h3>
+          <div className="rounded-2xl border border-[#0A66C2]/20 bg-[#E7F0F7]/50 p-4 space-y-3 shadow-sm">
+            <h3 className="font-medium text-[#0A66C2]">System Controls</h3>
             <div className="space-y-2">
               <button
                 onClick={actions.clearCaches}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition text-sm"
+                className="w-full px-4 py-2 bg-[#0A66C2] text-white rounded-full hover:bg-[#0A66C2]/90 transition text-sm"
               >
                 Clear All Caches
               </button>
@@ -344,17 +259,17 @@ export default function Admin() {
               </button>
             </div>
           </div>
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-950/80 p-4 space-y-3 shadow-sm">
-            <h3 className="font-medium">Data Backup</h3>
+          <div className="rounded-2xl border border-[#0A66C2]/20 bg-[#E7F0F7]/50 p-4 space-y-3 shadow-sm">
+            <h3 className="font-medium text-[#0A66C2]">Data Backup</h3>
             <div className="space-y-2">
               <button
                 onClick={actions.exportData}
-                className="w-full px-4 py-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition text-sm"
+                className="w-full px-4 py-2 bg-[#0A66C2] text-white rounded-full hover:bg-[#0A66C2]/90 transition text-sm"
               >
                 Export All Data
               </button>
               <label className="block">
-                <span className="text-sm text-black/60 dark:text-white/60">Import Data:</span>
+                <span className="text-sm text-[#0A66C2]/70">Import Data:</span>
                 <input
                   type="file"
                   accept=".json"
@@ -362,7 +277,7 @@ export default function Admin() {
                     const file = e.target.files?.[0];
                     if (file) actions.importData(file);
                   }}
-                  className="mt-1 block w-full text-sm text-black/60 dark:text-white/60 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  className="mt-1 block w-full text-sm text-[#0A66C2]/70 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-[#E7F0F7] file:text-[#0A66C2] hover:file:bg-[#E7F0F7]/80"
                 />
               </label>
             </div>

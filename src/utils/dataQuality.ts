@@ -30,8 +30,10 @@ export interface EnrichedBusinessData {
   dataSource: string;
 }
 
+export type BusinessRecord = Partial<EnrichedBusinessData> & { [key: string]: unknown };
+
 // Assess data quality of a business listing
-export function assessDataQuality(business: any): BusinessDataQuality {
+export function assessDataQuality(business: BusinessRecord): BusinessDataQuality {
   const issues: string[] = [];
   const suggestions: string[] = [];
 
@@ -138,7 +140,7 @@ export function assessDataQuality(business: any): BusinessDataQuality {
 }
 
 // Calculate accuracy score based on data consistency
-function calculateAccuracyScore(business: any): number {
+function calculateAccuracyScore(business: BusinessRecord): number {
   let score = 1.0; // Start with perfect score
 
   // Check for inconsistent data patterns
@@ -183,7 +185,7 @@ function calculateFreshnessScore(lastUpdated?: number): number {
 }
 
 // Enrich business data with additional information
-export async function enrichBusinessData(business: any): Promise<EnrichedBusinessData> {
+export async function enrichBusinessData(business: BusinessRecord): Promise<EnrichedBusinessData> {
   const enriched: EnrichedBusinessData = {
     id: business.id || generateBusinessId(business),
     name: business.name || 'Unknown Business',
@@ -225,7 +227,7 @@ export async function enrichBusinessData(business: any): Promise<EnrichedBusines
 }
 
 // Generate a unique business ID
-function generateBusinessId(business: any): string {
+function generateBusinessId(business: BusinessRecord): string {
   const components = [
     business.name || 'unknown',
     business.address || 'unknown',
@@ -245,34 +247,40 @@ function generateBusinessId(business: any): string {
 }
 
 // Placeholder functions for external data enrichment (would integrate with real APIs)
-async function findBusinessWebsite(name: string, address: string): Promise<string | undefined> {
+async function findBusinessWebsite(_name: string, _address: string): Promise<string | undefined> {
+  void _name;
+  void _address;
   // In a real implementation, this would search Google/Bing for the business website
   // For now, return undefined to indicate no enrichment possible
   return undefined;
 }
 
-async function findBusinessRating(name: string, address: string): Promise<{ rating: number; reviewCount: number } | null> {
+async function findBusinessRating(_name: string, _address: string): Promise<{ rating: number; reviewCount: number } | null> {
+  void _name;
+  void _address;
   // In a real implementation, this would query Google Places API or similar
   // For now, return null
   return null;
 }
 
-async function findBusinessHours(name: string, address: string): Promise<string | undefined> {
+async function findBusinessHours(_name: string, _address: string): Promise<string | undefined> {
+  void _name;
+  void _address;
   // In a real implementation, this would query business hours APIs
   // For now, return undefined
   return undefined;
 }
 
 // Detect and merge duplicate business listings
-export function findDuplicateBusinesses(businesses: any[]): Array<{ original: any; duplicates: any[] }> {
-  const duplicates: Array<{ original: any; duplicates: any[] }> = [];
+export function findDuplicateBusinesses(businesses: Array<BusinessRecord & { id: string }>): Array<{ original: BusinessRecord; duplicates: BusinessRecord[] }> {
+  const duplicates: Array<{ original: BusinessRecord; duplicates: BusinessRecord[] }> = [];
   const processed = new Set<string>();
 
   for (let i = 0; i < businesses.length; i++) {
     if (processed.has(businesses[i].id)) continue;
 
     const business = businesses[i];
-    const potentialDuplicates: any[] = [];
+    const potentialDuplicates: BusinessRecord[] = [];
 
     for (let j = i + 1; j < businesses.length; j++) {
       if (areBusinessesDuplicates(business, businesses[j])) {
@@ -295,7 +303,7 @@ export function findDuplicateBusinesses(businesses: any[]): Array<{ original: an
 }
 
 // Check if two businesses are likely duplicates
-function areBusinessesDuplicates(business1: any, business2: any): boolean {
+function areBusinessesDuplicates(business1: BusinessRecord, business2: BusinessRecord): boolean {
   // Check name similarity (simple string matching)
   const name1 = (business1.name || '').toLowerCase().trim();
   const name2 = (business2.name || '').toLowerCase().trim();
@@ -309,7 +317,12 @@ function areBusinessesDuplicates(business1: any, business2: any): boolean {
   if (addr1 === addr2 && addr1.length > 0) return true;
 
   // Check coordinate proximity (within 100 meters)
-  if (business1.lat && business1.lon && business2.lat && business2.lon) {
+  if (
+    typeof business1.lat === 'number' &&
+    typeof business1.lon === 'number' &&
+    typeof business2.lat === 'number' &&
+    typeof business2.lon === 'number'
+  ) {
     const distance = calculateDistance(business1.lat, business1.lon, business2.lat, business2.lon);
     if (distance < 100) return true;
   }
@@ -334,7 +347,7 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 }
 
 // Merge duplicate business listings
-export function mergeDuplicateBusinesses(original: any, duplicates: any[]): any {
+export function mergeDuplicateBusinesses(original: BusinessRecord, duplicates: BusinessRecord[]): BusinessRecord {
   const merged = { ...original };
 
   // Merge contact information (prefer non-null values)
